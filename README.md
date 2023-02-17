@@ -1,10 +1,9 @@
-# tracker
+# tracker - Feb 2023
 
-// A generic tracker App to use as any tracker app
-// Authentication + data entry + chart 
-// will use for Single use plastics App at CoderDojo Club
-// based on Tommy's videos LearnFlutterWithMe
-// Feb 2023.
+A generic tracker App to use as any tracker app.
+Authentication + data entry + chart. 
+will use for Single use plastics App at CoderDojo Club.
+Based on Tommy's videos LearnFlutterWithMe.
 
 A new Flutter project. 
 Tracker a generic Fluter Firebase app as base to track Single Use Plastics
