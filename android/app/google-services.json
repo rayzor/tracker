@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "718988099438",
+    "project_id": "tracker-18390",
+    "storage_bucket": "tracker-18390.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:718988099438:android:b5c53c77ec53089cdd4b7f",
+        "android_client_info": {
+          "package_name": "com.coderdojo.tracker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "718988099438-6bg3ecm6etbntcfjl33e4me5cbhug4ql.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDp_C0_45EMHf0oerzg4OAyeDn4QSIl410"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "718988099438-6bg3ecm6etbntcfjl33e4me5cbhug4ql.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
