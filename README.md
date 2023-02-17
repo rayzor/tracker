@@ -1,4 +1,4 @@
-# tracker - Feb 2023
+# tracker - Coder Dojo Club Project
 
 A generic tracker App to use as any tracker app.
 Authentication + data entry + chart. 
@@ -17,7 +17,7 @@ The Chart aggregates the Community Enteries per week and charts progress
 11/02/2023
 - chart used ChatGPT code no errors - very good 
 
-===================================================================
+================================
 ## Getting Started with Flutter
 
 For help getting started with Flutter development, view the
