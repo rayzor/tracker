@@ -1,4 +1,4 @@
-// second Chat code
+// Chat code
 import 'package:charts_flutter_new/flutter.dart'; //as charts;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -8,25 +8,91 @@ class TimeSeriesLineChart extends StatefulWidget {
   const TimeSeriesLineChart({super.key});
 
   @override
-  _TimeSeriesLineChartState createState() => _TimeSeriesLineChartState();
+  TimeSeriesLineChartState createState() => TimeSeriesLineChartState();
 }
 
-class _TimeSeriesLineChartState extends State<TimeSeriesLineChart> {
-  List<ChartLine> _dataLocation = [];
-  List<ChartLine> _dataParticipant = []; //rayMod for second chart line
+class TimeSeriesLineChartState extends State<TimeSeriesLineChart> {
+  final List<ChartLine> _locationEntriesList = []; // entries for location e.g. Glamire
+  final List<ChartLine> _participantEntriesList = []; //rayMod for user chart line
 
   @override
   void initState() {
     super.initState();
-    getLocationData(); // for location chart line
-    getParticipantData(); //for individual participant chart line
+    getLocationEntries(); // todo pass locationID for this user HOW Todo
+    // getParticipantEntries(); //for individual participant chart line
     // getLocationComparisonData(); // to compare other communities ??
   }
 
-  void getLocationData() async {
+  // CGPT suggestions:
+  //here are some suggestions to improve your Flutter Dart code:
+  // Consider adding error handling to the getLocationEntries() method.
+  // If an error occurs during the execution of the method,
+  // it's a good practice to handle it gracefully and
+  // provide a meaningful message to the user.
+  //
+  // Avoid using print statements for debugging purposes in a production release.
+  // Instead, consider using a logging library like logger to output debugging
+  // information to a file or a console.
+  // Since you're using a final variable to store the instance of FirebaseFirestore,
+  // you can move its declaration outside of the method to make it a class-level variable. This can help reduce the number of times you have to create a new instance of FirebaseFirestore.
+  // Consider using the async/await pattern to make your code more concise and
+  // easier to read.
+  // Todo Note For example, you can use Future.wait to execute
+  //  Todo multiple asynchronous methods
+  // at the same time, which can help improve the performance of your code.
+  //
+  // You can also consider breaking down the getLocationEntries() method into smaller,
+  // more focused methods that each handle a specific task.
+  // This can help make your code more modular and easier to Todo test.
+  // In this example, I've extracted the logic for getting the query snapshot
+  // into a separate method _getLocationEntriesSnapshot(), which can be easily reused and tested.
+  // I've also used the map() function to convert the list of DocumentSnapshots
+  // to a list of ChartLines in a more concise way. Finally,
+  // I've added error handling using a try-catch block to handle any exceptions
+  // that may occur during the execution of the method.
+
+  Future<QuerySnapshot> _getLocationEntriesSnapshot() {
+    final FirebaseFirestore locationEntries = FirebaseFirestore.instance;
+
+    return locationEntries
+        .collection('entries')
+        .orderBy("logDate")
+        //Todo make location select by user from list of locations
+        // Todo with his location first in list -- Ouch!
+        .where('locationID', isEqualTo: 'Glanmire') // ToDo cant be hardwired
+        .get();
+  }
+
+  void getLocationEntries() async {
+    try {
+      final QuerySnapshot querySnapshotLocations = await _getLocationEntriesSnapshot();
+
+      final List<DocumentSnapshot> snapshotLocationList = querySnapshotLocations.docs;
+
+      //Below I've also used the map() function to convert the list of DocumentSnapshots
+      // to a list of ChartLines in a more concise way.
+      final List<ChartLine> locationEntries = snapshotLocationList.map((entry) {
+        final Timestamp timestamp = entry['logDate'];
+        final DateTime logDate = timestamp.toDate();
+        final int quantity = entry['quantity'];
+        final String locationID = entry['locationID'];
+        final String userID = entry['userID'];
+
+        return ChartLine(logDate, quantity);
+      }).toList();
+
+      _locationEntriesList.addAll(locationEntries);
+
+      setState(() {});
+    } catch (e) {
+      // Handle the error gracefully
+    }
+  }
+
+  /*void getLocationData() async {
     // print("In getLocationData");
     final FirebaseFirestore firestore = FirebaseFirestore.instance;
-    print("In getData - firestore instance is ${firestore}");
+    print("In getData - firestore instance is $firestore"); //Todo Remove
     // 01 QuerySnapshot querySnapshot = await firestore.collection('entries').get();
     QuerySnapshot querySnapshot = await firestore
         .collection('entries')
@@ -55,43 +121,102 @@ class _TimeSeriesLineChartState extends State<TimeSeriesLineChart> {
     });
     setState(() {}); // to rebuild the screen
   }
-
+*/
   // rayMod ..add code to get the individual participant data from the Firebase database
-  void getParticipantData() async {
-    // print("In getLocationData");
-    final FirebaseFirestore firestore =
-        FirebaseFirestore.instance; //Todo dont call instance twice!!!
-    User? user =
-        FirebaseAuth.instance.currentUser; //get user email for filter query on DB
-    String? currentUserEmail = user?.email;
+  //ChatGPT Your code looks good overall, but here are a few suggestions to improve it further:
+  // Instead of using FirebaseAuth.instance.currentUser, consider using a state management
+  // approach, such as provider or bloc, to retrieve and manage user information.
+  // This can help you avoid repetitive queries to Firebase and improve app performance.
+  // Consider using the async and await keywords when querying Firestore to make your code
+  // more readable and avoid nesting callbacks.
+  // If you're querying the database frequently, you should add caching to your app
+  // to improve its performance. You can use streamBuilder to keep your app up-to-date
+  // with the latest data from Firestore, rather than querying the database every time
+  // the user navigates to a screen.
+  // Remove commented-out code from your final code for readability.
 
-    print("In getParticipant Data ${currentUserEmail}");
+  /* void getParticipantEntries() async {
+    final firestore = FirebaseFirestore.instance; //Todo dont call instance twice!!!
+    final user =
+        FirebaseAuth.instance.currentUser; //get user email to filter querySnapshot on DB
+    final currentUserEmail = user?.email;
     // 01 QuerySnapshot querySnapshot = await firestore.collection('entries').get();
-    QuerySnapshot querySnapshot = await firestore
+    try {
+      final querySnapshot = await firestore
+          .collection('entries')
+          .orderBy("logDate")
+          .where('userID',
+              isEqualTo: '$currentUserEmail') //needs a composite index for this to work
+          .get();
+
+      final List<DocumentSnapshot> snapshotList = querySnapshot.docs;
+
+      snapshotList.forEach((entry) {
+        final Timestamp timestamp = entry['logDate'];
+        final DateTime logDate =
+            timestamp.toDate(); // note here timestamp converted to Date format
+        final int quantity = entry['quantity'];
+        final String locationID = entry['locationID'];
+        final String userID = entry['userID'];
+
+        final ChartLine entries = ChartLine(logDate, quantity);
+// each extracted entry from Firebase is added to the _dataLocation list
+        _participantEntriesList.add(entries);
+      });
+      setState(() {});
+    } catch (e) {
+      print("Error: $e"); //// Handle the error gracefully
+    }
+  }*/
+//==
+  // Todo Note For example, you can use Future.wait to execute
+  //  Todo multiple asynchronous methods
+  Future<QuerySnapshot> _getParticipantEntriesSnapshot() {
+    final FirebaseFirestore participantEntries = FirebaseFirestore.instance;
+    final user = FirebaseAuth.instance.currentUser;
+    final currentUserEmail = user?.email;
+
+    return participantEntries
         .collection('entries')
         .orderBy("logDate")
         .where('userID',
             isEqualTo: '$currentUserEmail') //needs a composite index for this to work
         .get();
-
-    final List<DocumentSnapshot> snapshotList = querySnapshot.docs;
-    snapshotList.forEach((entry) {
-      final Timestamp timestamp = entry['logDate'];
-      final DateTime logDate =
-          timestamp.toDate(); // note here timestamp converted to Date format
-      final int quantity = entry['quantity'];
-      final String locationID = entry['locationID'];
-      final String userID = entry['userID'];
-
-      final ChartLine entries = ChartLine(logDate, quantity);
-
-      print("In getPAR GREEN $logDate $quantity $locationID $userID"); //todo remove print
-
-      _dataParticipant.add(
-          entries); // each extracted entry from Firebase is added to the _dataLocation list
-    });
-    setState(() {});
   }
+
+  void getParticipantEntries() async {
+    try {
+      final QuerySnapshot querySnapshotLocations = await _getParticipantEntriesSnapshot();
+      final List<DocumentSnapshot> snapshotLocationList = querySnapshotLocations.docs;
+
+      final QuerySnapshot querySnapshotParticipants =
+          await _getParticipantEntriesSnapshot();
+
+      final List<DocumentSnapshot> snapshotParticipantList =
+          querySnapshotParticipants.docs;
+
+      //Below I've also used the map() function to convert the list of DocumentSnapshots
+      // to a list of ChartLines in a more concise way.
+      final List<ChartLine> participantEntries = snapshotParticipantList.map((entry) {
+        final Timestamp timestamp = entry['logDate'];
+        final DateTime logDate = timestamp.toDate();
+        final int quantity = entry['quantity'];
+        final String locationID = entry['locationID'];
+        final String userID = entry['userID'];
+
+        return ChartLine(logDate, quantity);
+      }).toList();
+
+      _participantEntriesList.addAll(participantEntries);
+
+      setState(() {});
+    } catch (e) {
+      // Handle the error gracefully
+      print("Error: $e"); //// Todo  Handle the error gracefully
+    }
+  }
+
+  //==
 
   @override
   Widget build(BuildContext context) {
@@ -106,7 +231,7 @@ class _TimeSeriesLineChartState extends State<TimeSeriesLineChart> {
           // return Container(
           color: Colors.white, // required because defaults to terrible DARK mode.
           // height: 350,
-          child: _dataLocation.isNotEmpty
+          child: _locationEntriesList.isNotEmpty
               ? TimeSeriesChart(
                   [
                     Series<ChartLine, DateTime>(
@@ -116,24 +241,29 @@ class _TimeSeriesLineChartState extends State<TimeSeriesLineChart> {
                       domainFn: (entries, _) => entries.logDate,
                       measureFn: (entries, _) => entries.quantity,
                       displayName: ('Single Use Plastics'), // translated version
-                      data: _dataLocation,
+                      data: _locationEntriesList,
                     ),
-                    Series<ChartLine, DateTime>(
+
+                    //== ToDo RayMod Remmed out by Ray - put comparison communities charts here Not Participant
+                    /*Series<ChartLine, DateTime>(
                       id: 'participantChartID',
                       colorFn: (_, __) => MaterialPalette.red.shadeDefault,
                       //rayMod fillColorFn: (_, __) => MaterialPalette.yellow.shadeDefault,
                       domainFn: (entries, _) => entries.logDate,
                       measureFn: (entries, _) => entries.quantity,
                       displayName: ('Single Use Plastics'), // translated version
-                      data: _dataParticipant,
-                    ),
+                      data: _participantEntriesList,
+                    ),*/
+
+                    //==
                   ],
                   animate: true,
                   //  animationDuration: Duration(seconds: 2), // chart animation 1sec
                   //  dateTimeFactory: const LocalDateTimeFactory(),
                   //  defaultRenderer: LineRendererConfig(includePoints: true),
                   behaviors: [
-                    ChartTitle('Glanmire Single Use Plastics',
+                    //todo put user locationName in here
+                    ChartTitle('CommunityX Single Use Plastics', //Todo
                         subTitle: 'Weekly trend per 1000 residents',
                         behaviorPosition: BehaviorPosition.top,
                         titleOutsideJustification: OutsideJustification.middle,
@@ -155,10 +285,10 @@ class _TimeSeriesLineChartState extends State<TimeSeriesLineChart> {
                     ChartTitle('Time Line',
                         behaviorPosition: BehaviorPosition.bottom,
                         titleOutsideJustification: OutsideJustification.middleDrawArea),
-                    new ChartTitle('Plastic Items',
+                    ChartTitle('Plastic Items',
                         behaviorPosition: BehaviorPosition.start,
                         titleOutsideJustification: OutsideJustification.middleDrawArea),
-                    new ChartTitle('',
+                    ChartTitle('',
                         behaviorPosition: BehaviorPosition.end,
                         titleOutsideJustification: OutsideJustification.middleDrawArea),
                   ],
@@ -170,18 +300,20 @@ class _TimeSeriesLineChartState extends State<TimeSeriesLineChart> {
   }
 }
 
-// Model for Chart with x and y axix defined. Put in model folder later
+// Model for Chart with x and y axix defined. ToDo Put in model folder later
 class ChartLine {
-  final DateTime logDate;
-  final int quantity;
+  final DateTime logDate; //x-axis
+  final int quantity; // time axis
 
   ChartLine(@required this.logDate, @required this.quantity);
 }
-// In this example, we define a Sales class that holds the data for each entry,
+
+//Notes Here Delee on final code
+// ChatGPT : In this example, we define a ChartLine class that holds the data for each entry,
 // which consists of a DateTime and a quantity. We also define a TimeSeriesLineChart widget
 // that retrieves data from a Firebase collection called "entries" and stores it in a list of Sales objects.
 
-// The getData method retrieves the data from Firebase and populates the _dataLocation list.
+// The getData method retrieves the data from Firebase and populates the _locationEntriesList list.
 // We convert the Timestamp value in the "date" field to a DateTime object and
 // create a Sales object with the date and quantity values. Once the data has been retrieved,
 // we call setState to trigger a rebuild of the widget and display the chart.
@@ -195,9 +327,9 @@ class ChartLine {
 
 // I hope this helps! Let me know if you have any questions.
 
-//In this example, we define a Sales class that holds the data for each entry, which consists of a DateTime and a quantity. We also define a TimeSeriesLineChart widget that retrieves data from a Firebase collection called "entries" and stores it in a list of Sales objects.
+//In this example, we define a ChartLine class that holds the data for each entry, which consists of a DateTime and a quantity. We also define a TimeSeriesLineChart widget that retrieves data from a Firebase collection called "entries" and stores it in a list of Sales objects.
 //
-// The getData method retrieves the data from Firebase and populates the _dataLocation list. We convert the Timestamp value in the "date" field to a DateTime object and create a Sales object with the date and quantity values. Once the data has been retrieved, we call setState to trigger a rebuild of the widget and display the chart.
+// The getData method retrieves the data from Firebase and populates the _locationEntriesList list. We convert the Timestamp value in the "date" field to a DateTime object and create a Sales object with the date and quantity values. Once the data has been retrieved, we call setState to trigger a rebuild of the widget and display the chart.
 //
 // In the build method, we use the TimeSeriesChart widget from charts_flutter_new to build the chart. We create a Series with the Sales list as the data source and specify the domainFn and measureFn functions to extract the date and quantity values from each Sales object. We also set the dateTimeFactory property to LocalDateTimeFactory, which creates DateTime objects in the local time zone. Finally, we pass the Series to the TimeSeriesChart widget and set the animate property to true.
 //

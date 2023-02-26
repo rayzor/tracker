@@ -1,4 +1,4 @@
-// I asked ChatGPT to improve my code. It did a good job.
+// I asked ChatGPT to improve my code. It did a good job. user called only once in init
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -30,11 +30,12 @@ class _AuthAppState extends State<AuthApp> {
   @override
   void initState() {
     super.initState();
-    _getCurrentUser();
+    _getCurrentUser(); // get user initially will be null because not logged in
   }
 
   void _getCurrentUser() async {
     user = await FirebaseAuth.instance.currentUser;
+    //String? firebaseUserEmail = user?.email;
     setState(() {});
   }
 
@@ -60,7 +61,7 @@ class _AuthAppState extends State<AuthApp> {
                           email: emailController.text,
                           password: passwordController.text,
                         );
-                        _getCurrentUser();
+                        _getCurrentUser(); // get user after Login
                       }),
                   ElevatedButton(
                       child: Text('Login'),

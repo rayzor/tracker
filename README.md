@@ -1,4 +1,5 @@
-# tracker - Coder Dojo Club Project
+# tracker13  - Coder Dojo Club Project
+# trying to push to Github ..having trouble.
 
 A generic tracker App to use as any tracker app.
 Authentication + data entry + chart. 

@@ -1,7 +1,7 @@
-// Tommy's firebase Login complete code.
-// just one mod to put MaterialApp at top of tree so thay Navigator code worked.
-// solution from Stackoverflow
+// tracker 13 from Tommy's firebase Login complete code.
+// just one mod to put MaterialApp at top of tree so that Navigator code worked.
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -14,8 +14,8 @@ void main() async {
   await Firebase.initializeApp();
 
   runApp(
-    MaterialApp(
-      // Navigator needs Material App here high in the widget tree.
+    // Navigator needs Material App here high in the widget tree.
+    const MaterialApp(
       home: AuthApp(),
     ),
   );
@@ -25,25 +25,21 @@ class AuthApp extends StatefulWidget {
   const AuthApp({Key? key}) : super(key: key);
 
   @override
-  _AuthAppState createState() => _AuthAppState();
+  AuthAppState createState() => AuthAppState();
 }
 
-class _AuthAppState extends State<AuthApp> {
+class AuthAppState extends State<AuthApp> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-  // User? user;
+  final locationController = TextEditingController();
+  User? user;
+  CollectionReference? locationsCollection;
 
   @override
   Widget build(BuildContext context) {
-    //here user is an Instance of USER NOT current user as I thought
+    //here "user" is an Instance of USER NOT current user as I thought
     // bad code  user should only be called once in initState()
     User? user = FirebaseAuth.instance.currentUser;
-
-    // ToDo Delete on final ...tests only
-    String? currentUserEmail = user?.email; // too early must be after await
-    print("In Main Build  ${user?.email} "); // print the field email from User Instance
-    //  print("In Main Build  ${currentUserEmail} ");
-    // print("In Main Build  ${user}"); // print full firebase Instance of User ...
 
     return MaterialApp(
       home: Scaffold(
@@ -55,76 +51,131 @@ class _AuthAppState extends State<AuthApp> {
             children: [
               TextField(controller: emailController),
               TextField(controller: passwordController),
+              TextField(controller: locationController),
 
-              // Login  Sign Up Logout  Buttones in a Row
+              // Login  Sign Up Logout  Buttons in a Row
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
+//== ChatGPT
                   ElevatedButton(
-                      child: Text(
-                          'Sign Up'), // demand Location choice here & pass via Navigator
-                      onPressed: () async {
+                    child: Text(
+                        'Sign Up'), // demand Location input here & pass via Navigator
+                    onPressed: () async {
+                      try {
                         await FirebaseAuth.instance.createUserWithEmailAndPassword(
                           email: emailController.text,
                           password: passwordController.text,
                         );
+                        // If authenticated then user != null,
+                        // then create a location record in the locations collection
+                        if (user != null) {
+                          await FirebaseFirestore.instance
+                              .collection('locations')
+                              .doc()
+                              .set({
+                            "locationName": locationController.text,
+                            "userEmail": emailController.text,
+                          });
+                        }
                         setState(() {});
-                      }),
+                      } catch (e) {
+                        // Handle any errors that occur during sign-up
+                        print(e.toString());
+                        // Show an alert or dialog to the user with the error message
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text("Oh! Oh! Error"),
+                              content: Text(e.toString()),
+                              actions: [
+                                TextButton(
+                                  child: Text("OK"),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      }
+                    },
+                  ),
+
+                  //==Chat
                   ElevatedButton(
-                      child: Text('Login'),
-                      onPressed: () async {
+                    child: Text('Login'),
+                    onPressed: () async {
+                      try {
                         await FirebaseAuth.instance.signInWithEmailAndPassword(
                           email: emailController.text,
                           password: passwordController.text,
                         );
-
+                        // print("${user?.email}");
                         //rayMod to navigate to data entry screen
                         if (user != null) {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => DataEntry(
-                                currentUserEmail: emailController.text, //pass email
+                                currentUserEmail:
+                                    emailController.text, //pass email to next screen
                               ),
                             ),
                           );
-                          setState(() {
-                            print("In Navigator to pass var + ${emailController.text}");
-                          }); //end setState
+                          setState(() {}); //end setState
                         }
-                      }),
+                      } catch (e) {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: Text(
+                                "Oh Oh .. no such user"), // translate for all languages
+                            content: Text(e.toString()),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: Text("OK"),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+                    },
+                  ),
                   ElevatedButton(
                       child: Text('Log Out'),
                       onPressed: () async {
-                        await FirebaseAuth.instance.signOut();
-                        setState(() {});
+                        if (user != null) {
+                          // logout if user is not null (logedIn)
+                          await FirebaseAuth.instance.signOut();
+                          setState(() {});
+                        }
                       }),
                 ],
               ),
 
-              // rayMod - new button to go to Chart screen
+              // rayMod - new button to go to Chart screen - just convient for now .. rejig
               ElevatedButton(
-                  child: Text('Chart'),
-                  onPressed: () {
+                child: Text('Chart'),
+                onPressed: () {
+                  if (user != null) {
                     //rayMod to navigate to Chart screen
-
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => TimeSeriesLineChart() // DataEntry(),
+                          builder: (context) =>
+                              TimeSeriesLineChart() // class name Not file name
                           ),
                     );
+                  }
+                  ; // if test
 
-/*                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => DataEntry(), //LineChart(),
-                      ),
-                    );*/
-                    setState(() {
-                      //    print("In Navigator to pass var + ${emailController.text}");
-                    }); //end setState
-                  }),
+                  setState(() {}); //end setState
+                },
+              ),
             ],
           ),
         ),
@@ -132,7 +183,10 @@ class _AuthAppState extends State<AuthApp> {
     );
   }
 }
-// User fields...
+
+//Todo
+// Notes Only - delete on final code before release
+// User fields on Firebase...
 /*
 User(
 displayName: ,

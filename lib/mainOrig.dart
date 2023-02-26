@@ -47,7 +47,7 @@ class _AuthAppState extends State<AuthApp> {
                         setState(() {});
                       }),
                   ElevatedButton(
-                      child: Text('Login'),
+                      child: Text('Sign In'),
                       onPressed: () async {
                         await FirebaseAuth.instance.signInWithEmailAndPassword(
                           email: emailController.text,
@@ -56,7 +56,7 @@ class _AuthAppState extends State<AuthApp> {
                         setState(() {});
                       }),
                   ElevatedButton(
-                      child: Text('Logout'),
+                      child: Text('Log Out'),
                       onPressed: () async {
                         await FirebaseAuth.instance.signOut();
                         setState(() {});

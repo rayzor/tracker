@@ -2,45 +2,83 @@
 // called from Main and cut down for Data Entry ... much better arch to do this but maybe best
 // to stick to his building blocks so the boys get how simple it is.
 
+// Note: ? means it is OK to be null but caution as it could fail
+// Note: ! means assert symbol saying I guarantee not null
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart'; //for all screen widgets, scaffold appbar etc
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart'; // for DateFormats
 
 class DataEntry extends StatefulWidget {
-  // Declare a field that holds the currentUserEmail from Navigator push in main.dart
-  final String currentUserEmail; // to pass via the NAvigator to the DataEntry screen
-
-  DataEntry({Key? key, required this.currentUserEmail}) : super(key: key);
+  // Declare a field that holds the currentUserEmail from Navigator pushed from main.dart
+  final String currentUserEmail; // passed from the Navigator in main
+  const DataEntry({Key? key, required this.currentUserEmail}) : super(key: key);
 
   @override
-  _DataEntryState createState() => _DataEntryState();
+  DataEntryState createState() => DataEntryState();
 }
 
-class _DataEntryState extends State<DataEntry> {
-  final quantity = TextEditingController();
-  final String location = "Glanmire"; // pick up the user location later from dropdown
+class DataEntryState extends State<DataEntry> {
+  final quantity =
+      TextEditingController(); // used to input data .. number of plastic items
+  // ToDo rayDevOnly final String location = "Glanmire"; // pick up the user location later from dropdown
   final DateTime today = DateTime.now();
   final dateFormatted = DateFormat.yMd().format(DateTime.now());
-// Todo ... decide final Date format style EU or US od loaction based.
-  final myDateFormat = new DateFormat('dd-MM-yyyy');
+// Todo ... decide final Date format style EU or US od location based.
+  final myDateFormat = DateFormat('dd-MM-yyyy'); // Irish / British date format
+  String locationName = "myTown";
+
+  //== Chat
+  @override
+  void initState() {
+    super.initState();
+    //todo Fix this is not a string for Mallow it is an object.. must do convert to list and extract see. chart code
+    getLocation(widget.currentUserEmail); // get the location for this emailUser
+  }
+
+//== Chat
+
+  Future<String> getLocation(String currentUserEmail) async {
+    // Get a reference to the locations collection
+    CollectionReference<Map<String, dynamic>> locations =
+        FirebaseFirestore.instance.collection('locations');
+
+    // Use a query to find the first document that matches the currentUserEmail
+    QuerySnapshot<Map<String, dynamic>> querySnapshot =
+        await locations.where('userEmail', isEqualTo: currentUserEmail).get();
+
+    // Check if any documents were returned by the query
+    if (querySnapshot.size > 0) {
+      locationName = querySnapshot.docs.first.data()['locationName'];
+
+      //print("in DE querySS [locationName] is ...${locationName}");
+
+      return locationName;
+    } else {
+      // Todo No documents were found, return null or throw an exception
+      return locationName = "myTown";
+    }
+  }
+
+  // Build Screen
   @override
   Widget build(BuildContext context) {
-    // the use of WIDGET here is very wierd syntax .not at all intuitive or logical.
+    // widget keyword is needed to expose currentUserEmail in this build Widget - wierd
     final userEmail = widget.currentUserEmail;
-    print("In DataEntry + ${userEmail}");
 
     // get all entries here for display in Stream in ListView.
+    //todo should this be a async / await
     CollectionReference entries = FirebaseFirestore.instance.collection('entries');
-    print("Entries from FirebaseFirestore.instance . collection ARE ");
+
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: Text('Single Use Plastics Tracker - $location',
+          title: Text('Single Use Plastics Tracker - $locationName ',
               //overflow: ,
-              style: TextStyle(fontSize: 18)),
+              style: const TextStyle(fontSize: 18)),
           leading: IconButton(
-            icon: Icon(Icons.arrow_back),
+            icon: const Icon(Icons.arrow_back),
             onPressed: () => Navigator.pop(context),
           ),
         ),
@@ -48,39 +86,40 @@ class _DataEntryState extends State<DataEntry> {
           child: Column(children: [
             TextField(
               controller: quantity,
-              decoration: InputDecoration(hintText: "Enter quantity of plastic items"),
+              decoration:
+                  const InputDecoration(hintText: "Enter quantity of plastic items"),
               inputFormatters: [
+                // to restrict data entry to numbers only from ChatGPt
                 IntegerInputFormatter()
-              ], // to restrict to numbers only ChatGPt
+              ],
             ),
 
-            //ToDo rayMod use Expanded to only expand to available space & avoid ZEBRA yellow crossing
+            //ToDo Expanded widget needed to only expand to available space & avoid ZEBRA yellow crossing
             Expanded(
               child: StreamBuilder(
                 stream: entries.orderBy('logDate').snapshots(),
                 builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                   if (!snapshot.hasData) {
-                    return Center(child: Text('Loading'));
+                    return const Center(child: Text('Loading'));
                   }
-                  // test EU date format
+                  // todo test EU date format
 
-                  print("In StreamBuilder + $snapshot");
                   return ListView(
                     // Note: ! is assert symbol saying I guarantee not null
-                    //    or ? is it is OK to be null but caution as it could fail
                     children: snapshot.data!.docs.map((entry) {
                       return Center(
                         child: ListTile(
                           leading: Text(entry['locationID']),
-                          trailing:
-                              Text(entry['quantity'].toString()), // String for listview.
+                          trailing: Text(
+                              entry['quantity'].toString()), // toString for listview.
                           // works leading: Text(DateFormat.yMMMEd().format(entry['logDate'].toDate())),
                           // works leading: Text(DateFormat.yMd().format(entry['logDate'].toDate())),
 
                           title: Text(myDateFormat.format(entry['logDate'].toDate())),
 
                           onLongPress: () {
-                            entry.reference.delete(); // ToDo nice but not in this app
+                            entry.reference
+                                .delete(); // ToDo handy but remove in final app
                           },
                         ),
                       );
@@ -92,24 +131,27 @@ class _DataEntryState extends State<DataEntry> {
           ]),
         ),
         floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.save),
+          child: const Icon(Icons.save),
           onPressed: () {
             entries.add({
               // ToDo use seconds since EPOCH or maybe week number & year
               //'logDate': DateTime.now(),
               'logDate': Timestamp.fromDate(DateTime.now()),
 
-              // maybe use locationID or itemID as generic as possible for other trackers ..
-              'locationID':
-                  "Glanmire", // only fixed now for dev and test Do Dropdown Select
-              'quantity':
-                  int.parse(quantity.text), // convert Text input to int for Firestore
+              // Todo locationID  Do Dropdown Select
+              'locationID': locationName,
+              'quantity': int.parse(
+                  quantity.text), // parse means convert Text input to int for Firestore
               'userID': userEmail,
             });
             quantity.clear();
             // locationTextController.clear();
             // dateTextController.clear();
             // userTextController.clear();
+
+            setState(() {
+              //
+            });
           },
         ),
       ),
@@ -117,7 +159,7 @@ class _DataEntryState extends State<DataEntry> {
   }
 }
 
-// Chat GPT suggestion - good code. prevents entry OR edit to text.
+// Chat GPT suggestion - good code. prevents test entry OR edit - numbers only allowed.
 class IntegerInputFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
@@ -133,6 +175,7 @@ class IntegerInputFormatter extends TextInputFormatter {
   }
 }
 
+// ChatGPT notes ... delete on final code for release
 // In your TextField widget
 //TextField(
 //inputFormatters: [IntegerInputFormatter()],
@@ -140,11 +183,12 @@ class IntegerInputFormatter extends TextInputFormatter {
 //)
 
 // Notes : Date storage in Firebase as per ChatGPT
-// The best way to store dates in Firebase (Firestore) using Flutter is to store them as Timestamp objects. The Timestamp class is part of the Firebase Firestore API and represents a specific point in time with nanosecond precision.
+// The best way to store dates in Firebase (Firestore) using Flutter
+// is to store them as Timestamp objects.
+// The Timestamp class is part of the Firebase Firestore API
+// and represents a specific point in time with nanosecond precision.
 //
 // Here's an example of how to store a DateTime as a Timestamp in Firebase:
-//
-// dart
 //
 // FirebaseFirestore.instance.collection("your_collection").add({
 //   "date": Timestamp.fromDate(DateTime.now()),
