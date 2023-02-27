@@ -1,11 +1,11 @@
-// tracker16 - user location chart
+// tracker 14 Chat code
 import 'package:charts_flutter_new/flutter.dart'; //as charts;
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class TimeSeriesLineChart extends StatefulWidget {
   final String currentUserEmail; // passed from the Navigator in main
-  //const DataEntry({Key? key, required this.currentUserEmail}) : super(key: key);
   const TimeSeriesLineChart({Key? key, required this.currentUserEmail}) : super(key: key);
 
   @override
@@ -13,223 +13,228 @@ class TimeSeriesLineChart extends StatefulWidget {
 }
 
 class TimeSeriesLineChartState extends State<TimeSeriesLineChart> {
-  final List<ChartLine> _userEntriesList = []; // for user chart line
-  final List<ChartLine> _locationEntriesList = []; // eg for Glanmire location chart
-  String locationName = "";
+  final List<ChartLine> _locationEntriesList = []; // entries for location e.g. Glamire
+  final List<ChartLine> _participantEntriesList = []; //rayMod for user chart line
+  late final String thisLocation;
+
+  // use to select only this users location entries - aggregrated and normalised
 
   @override
   void initState() {
     super.initState();
-    // ToDo NEXT . Do aggregrate chart for all Glanmire ie user locationID aggregrated summed by week!
-    // I could put toggle in the chart screen for user v location and just filter user but
-    // also i need to code a summary for the location by week .. date range or week number
-    // would be easier. Maybe change the logDate to yearWeekNumber 202334 ... or date since Epoch
-    // Also maybe put 2 charts on the screen one for user and one for Glanmire?
-
-    //  _getUserLocation(); // get user location from location collection when he signed in
-    _getUserLocation(widget.currentUserEmail);
-    _getUserEntries(); //for individual user chart line
-    // getAllUserLocationEntries(); // for the aggregrate location chart line e.g. Glanmire
-    // getLocationComparisonData(); // to compare other communities ?? // later
+    //get thisUserLocation => null;
+    thisLocation = getLocation(widget.currentUserEmail) as String ;
+    // getLocation(widget.currentUserEmail); // get the location for this emailUser
+    getLocationEntries(); // todo pass locationID for this user
+    // getParticipantEntries(); //for individual participant chart line
+    // getLocationComparisonData(); // to compare other communities ??
   }
 
-  //==
-  //== ChatGPTcode
-  // This Future function gets the user location from the locations collection by select email
-  // We will use this to select ALL the other Glanmire records in the collection to chart them
-  Future<String> _getUserLocation(String currentUserEmail) async {
+  Future<QuerySnapshot > getLocation(String currentUserEmail) async {
     // Get a reference to the locations collection
     CollectionReference<Map<String, dynamic>> locations =
-        FirebaseFirestore.instance.collection('locations');
+    FirebaseFirestore.instance.collection('locations');
 
     // Use a query to find the first document that matches the currentUserEmail
     QuerySnapshot<Map<String, dynamic>> querySnapshot =
-        await locations.where('userEmail', isEqualTo: currentUserEmail).get();
+    await locations.where('userEmail', isEqualTo: currentUserEmail).get();
 
     // Check if any documents were returned by the query
     if (querySnapshot.size > 0) {
-      setState(() {
-        // to build the screen when new locationName
-        locationName = querySnapshot.docs.first.data()['locationName'];
-      });
-      print("in querySnapshot [locationName] is ...$locationName");
+      thisLocation = querySnapshot.docs.first.data()['locationName'];
 
-      return locationName.toString();
-    } else {
-      // Todo No documents were found, return null or throw an exception
-      return locationName = "";
+      return locationEntries
+          .collection('entries')
+          .orderBy("logDate")
+      //Todo make location select by user from list of locations
+      // Todo with his location first in list -- Ouch!
+          .where('locationID', isEqualTo: 'Glanmire') // ToDo cant be hardwired
+          .get();
     }
-  }
 
-  //==
+    void getLocationEntries() async {
+      try {
+        final QuerySnapshot querySnapshotLocations =
+        await _getLocationEntriesSnapshot(thisLocation);
 
-  //==
-  // Todo Note For example, you can use Future.wait to execute
-  //  Todo multiple asynchronous methods
-  Future<QuerySnapshot> _getUserEntriesSnapshot() {
-    final FirebaseFirestore userEntries = FirebaseFirestore.instance;
-    // final user = FirebaseAuth.instance.currentUser; //not needed we have this from Nav
-    //final currentUserEmail = user?.email;
+        final List<DocumentSnapshot> snapshotLocationList = querySnapshotLocations.docs;
+        print("Location Entries are  $snapshotLocationList");
+        //Below I've also used the map() function to convert the list of DocumentSnapshots
+        // to a list of ChartLines in a more concise way.
+        final List<ChartLine> locationEntries = snapshotLocationList.map((entry) {
+          final Timestamp timestamp = entry['logDate'];
+          final DateTime logDate = timestamp.toDate();
+          final int quantity = entry['quantity'];
+          final String locationID = entry['locationID'];
+          final String userID = entry['userID'];
 
-    return userEntries
-        .collection('entries')
-        .orderBy("logDate")
-        //firebase needs a composite index to select userID field. Done
-        .where('userID', isEqualTo: '${widget.currentUserEmail}')
-        .get();
-  }
+          return ChartLine(logDate, quantity);
+        }).toList();
 
-  void _getUserEntries() async {
-    try {
-      final QuerySnapshot querySnapshotEntries = await _getUserEntriesSnapshot();
-      final List<DocumentSnapshot> snapshotUserList = querySnapshotEntries.docs;
+        _locationEntriesList.addAll(locationEntries);
 
-      //final QuerySnapshot querySnapshotUser = await _getUserEntriesSnapshot();
-      // final List<DocumentSnapshot> snapshotUserEntriesList = querySnapshotEntries.docs;
-
-      //Below I've also used the map() function to convert the list of DocumentSnapshots
-      // to a list of ChartLines in a more concise way.
-      final List<ChartLine> userEntries = snapshotUserList.map((entry) {
-        final Timestamp timestamp = entry['logDate'];
-        final DateTime logDate = timestamp.toDate();
-        final int quantity = entry['quantity'];
-        //  final String locationID = entry['locationID'];
-        //  final String userID = entry['userID'];
-
-        return ChartLine(logDate, quantity);
-      }).toList();
-
-      _userEntriesList.addAll(userEntries);
-      // print('in getUserEntries ${userEntries}');
-      setState(() {});
-    } catch (e) {
-      // Todo Handle the error gracefully not with print in production code
-      print("Error: $e"); //// Todo  Handle the error gracefully
+        setState(() {});
+      } catch (e) {
+        // Handle the error gracefully
+      }
     }
-  }
 
-  //==
+    Future<QuerySnapshot> _getLocationEntriesSnapshot(thisLocation) {
+      final FirebaseFirestore locationEntries = FirebaseFirestore.instance;
+      print("In getLocationEntriesSnapshot ..$locationEntries");
 
-  Future<QuerySnapshot> _getLocationEntriesSnapshot() {
-    final FirebaseFirestore locationEntries = FirebaseFirestore.instance;
-    return locationEntries
-        .collection('entries')
-        .orderBy("logDate")
-        .where('locationID', isEqualTo: 'Midleton') //Todo make location select by user
-        .get();
-  }
-
-  void getLocationEntries() async {
-    try {
-      final QuerySnapshot querySnapshotLocations = await _getLocationEntriesSnapshot();
-
-      final List<DocumentSnapshot> snapshotLocationList = querySnapshotLocations.docs;
-
-      //Below I've also used the map() function to convert the list of DocumentSnapshots
-      // to a list of ChartLines in a more concise way.
-      final List<ChartLine> locationEntries = snapshotLocationList.map((entry) {
-        final Timestamp timestamp = entry['logDate'];
-        final DateTime logDate = timestamp.toDate();
-        final int quantity = entry['quantity'];
-        // final String locationID = entry['locationID'];
-        // final String userID = entry['userID'];
-
-        return ChartLine(logDate, quantity);
-      }).toList();
-
-      _locationEntriesList.addAll(locationEntries);
-
-      setState(() {});
-    } catch (e) {
-      // Handle the error gracefully
+      return locationEntries
+          .collection('entries')
+          .orderBy("logDate")
+      //Todo get user location from list of locations where email =
+      // Todo with his location first in list -- Ouch!
+          .where('locationID', isEqualTo: thisLocation.toString()) // ToDo cant be hardwired
+      //WORKS .where('locationID', isEqualTo: "Midleton") // ToDo cant be hardwired
+          .get();
     }
-  }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
+//==
+    // Todo Note For example, you can use Future.wait to execute
+    //  Todo multiple asynchronous methods
+    Future<QuerySnapshot> _getParticipantEntriesSnapshot() {
+      final FirebaseFirestore participantEntries = FirebaseFirestore.instance;
+      final user = FirebaseAuth.instance.currentUser;
+      final currentUserEmail = user?.email;
 
-      ///stops keyboard overflow
-      //appBar: new AppBar( title: _buildTitle(context), actions: _buildActions( context ), ),
+      return participantEntries
+          .collection('entries')
+          .orderBy("logDate")
+          .where('userID',
+          isEqualTo: '$currentUserEmail') //needs a composite index for this to work
+          .get();
+    }
 
-      body: SafeArea(
-        child: Container(
-          // return Container(
-          color: Colors.white, // required because defaults to terrible DARK mode.
-          // height: 350,
-          child: _userEntriesList.isNotEmpty
-              ? TimeSeriesChart(
-                  [
-                    Series<ChartLine, DateTime>(
-                      id: 'locationChartID',
-                      colorFn: (_, __) => MaterialPalette.blue.shadeDefault,
-                      //rayMod fillColorFn: (_, __) => MaterialPalette.yellow.shadeDefault,
-                      domainFn: (entries, _) => entries.logDate,
-                      measureFn: (entries, _) => entries.quantity,
-                      displayName: ('Single Use Plastics'), // translated version
-                      data: _locationEntriesList,
-                    ),
-                    Series<ChartLine, DateTime>(
-                      id: 'userChartID',
+    void getParticipantEntries() async {
+      try {
+        final QuerySnapshot querySnapshotLocations = await _getParticipantEntriesSnapshot();
+        final List<DocumentSnapshot> snapshotLocationList = querySnapshotLocations.docs;
+
+        final QuerySnapshot querySnapshotParticipants =
+        await _getParticipantEntriesSnapshot();
+
+        final List<DocumentSnapshot> snapshotParticipantList =
+            querySnapshotParticipants.docs;
+
+        //Below I've also used the map() function to convert the list of DocumentSnapshots
+        // to a list of ChartLines in a more concise way.
+        final List<ChartLine> participantEntries = snapshotParticipantList.map((entry) {
+          final Timestamp timestamp = entry['logDate'];
+          final DateTime logDate = timestamp.toDate();
+          final int quantity = entry['quantity'];
+          final String locationID = entry['locationID'];
+          final String userID = entry['userID'];
+
+          return ChartLine(logDate, quantity);
+        }).toList();
+
+        _participantEntriesList.addAll(participantEntries);
+
+        setState(() {});
+      } catch (e) {
+        // Handle the error gracefully
+        print("Error: $e"); //// Todo  Handle the error gracefully
+      }
+    }
+
+    //==
+
+    @override
+    Widget build(BuildContext context) {
+      return Scaffold(
+        resizeToAvoidBottomInset: false,
+
+        ///stops keyboard overflow
+        //appBar: new AppBar( title: _buildTitle(context), actions: _buildActions( context ), ),
+
+        body: SafeArea(
+          child: Container(
+            // return Container(
+            color: Colors.white, // required because defaults to terrible DARK mode.
+            // height: 350,
+            child: _locationEntriesList.isNotEmpty
+                ? TimeSeriesChart(
+              [
+                Series<ChartLine, DateTime>(
+                  id: 'locationChartID',
+                  colorFn: (_, __) => MaterialPalette.blue.shadeDefault,
+                  //rayMod fillColorFn: (_, __) => MaterialPalette.yellow.shadeDefault,
+                  domainFn: (entries, _) => entries.logDate,
+                  measureFn: (entries, _) => entries.quantity,
+                  displayName: ('Single Use Plastics'), // translated version
+                  data: _locationEntriesList,
+                ),
+
+                //== ToDo RayMod Remmed out by Ray - put comparison communities charts here Not Participant
+                /*Series<ChartLine, DateTime>(
+                      id: 'participantChartID',
                       colorFn: (_, __) => MaterialPalette.red.shadeDefault,
                       //rayMod fillColorFn: (_, __) => MaterialPalette.yellow.shadeDefault,
                       domainFn: (entries, _) => entries.logDate,
                       measureFn: (entries, _) => entries.quantity,
                       displayName: ('Single Use Plastics'), // translated version
-                      data: _userEntriesList,
-                    ),
-                  ],
-                  animate: true,
-                  //  animationDuration: Duration(seconds: 2), // chart animation 1sec
-                  //  dateTimeFactory: const LocalDateTimeFactory(),
-                  //  defaultRenderer: LineRendererConfig(includePoints: true),
-                  behaviors: [
-                    ChartTitle('Single Use Plastics - ' + '$locationName',
-                        subTitle: 'Weekly trend per 1000 residents',
-                        behaviorPosition: BehaviorPosition.top,
-                        titleOutsideJustification: OutsideJustification.middle,
-                        titleStyleSpec: const TextStyleSpec(
-                            //     HTML / CSS Color Name	Hex Code #RRGGBB	Decimal Code (R,G,B)
-                            //   lawngreen	#7CFC00	rgb(124,252,0)
-                            //  chartreuse	#7FFF00	rgb(127,255,0)
-                            //  limegreen	#32CD32	rgb(50,205,50)
-                            // ORIG color: Color(r: 127, g: 63, b: 191),
-                            color: Color(r: 50, g: 205, b: 50),
-                            fontFamily: 'Georgia',
-                            fontSize: 18),
+                      data: _participantEntriesList,
+                    ),*/
 
-                        // Set a larger inner padding than the default (10) to avoid
-                        // rendering the text too close to the top measure axis tick label.
-                        // The top tick label may extend upwards into the top margin region
-                        // if it is located at the top of the draw area.
-                        innerPadding: 28),
-                    ChartTitle('Time Line',
-                        behaviorPosition: BehaviorPosition.bottom,
-                        titleOutsideJustification: OutsideJustification.middleDrawArea),
-                    ChartTitle('Plastic Items',
-                        behaviorPosition: BehaviorPosition.start,
-                        titleOutsideJustification: OutsideJustification.middleDrawArea),
-                    ChartTitle('',
-                        behaviorPosition: BehaviorPosition.end,
-                        titleOutsideJustification: OutsideJustification.middleDrawArea),
-                  ],
-                )
-              : const Center(child: CircularProgressIndicator()),
+                //==
+              ],
+              animate: true,
+              //  animationDuration: Duration(seconds: 2), // chart animation 1sec
+              //  dateTimeFactory: const LocalDateTimeFactory(),
+              //  defaultRenderer: LineRendererConfig(includePoints: true),
+              behaviors: [
+                //todo put user locationName in here
+                ChartTitle('CommunityX Single Use Plastics', //Todo
+                    subTitle: 'Weekly trend per 1000 residents',
+                    behaviorPosition: BehaviorPosition.top,
+                    titleOutsideJustification: OutsideJustification.middle,
+                    titleStyleSpec: TextStyleSpec(
+                      //     HTML / CSS Color Name	Hex Code #RRGGBB	Decimal Code (R,G,B)
+                      //   lawngreen	#7CFC00	rgb(124,252,0)
+                      //  chartreuse	#7FFF00	rgb(127,255,0)
+                      //  limegreen	#32CD32	rgb(50,205,50)
+                      // ORIG color: Color(r: 127, g: 63, b: 191),
+                        color: Color(r: 50, g: 205, b: 50),
+                        fontFamily: 'Georgia',
+                        fontSize: 18),
+
+                    // Set a larger inner padding than the default (10) to avoid
+                    // rendering the text too close to the top measure axis tick label.
+                    // The top tick label may extend upwards into the top margin region
+                    // if it is located at the top of the draw area.
+                    innerPadding: 28),
+                ChartTitle('Time Line',
+                    behaviorPosition: BehaviorPosition.bottom,
+                    titleOutsideJustification: OutsideJustification.middleDrawArea),
+                ChartTitle('Plastic Items',
+                    behaviorPosition: BehaviorPosition.start,
+                    titleOutsideJustification: OutsideJustification.middleDrawArea),
+                ChartTitle('',
+                    behaviorPosition: BehaviorPosition.end,
+                    titleOutsideJustification: OutsideJustification.middleDrawArea),
+              ],
+            )
+                : Center(child: CircularProgressIndicator()),
+          ),
         ),
-      ),
-    );
+      );
+    }
   }
-}
 
 // Model for Chart with x and y axix defined. ToDo Put in model folder later
-class ChartLine {
-  final DateTime logDate;
-  final int quantity;
+  class ChartLine {
+  final DateTime logDate; //x-axis
+  final int quantity; // time axis
 
   ChartLine(@required this.logDate, @required this.quantity);
-}
-// In this example, we define a Sales class that holds the data for each entry,
+  }
+
+//Notes Here Delee on final code
+// ChatGPT : In this example, we define a ChartLine class that holds the data for each entry,
 // which consists of a DateTime and a quantity. We also define a TimeSeriesLineChart widget
 // that retrieves data from a Firebase collection called "entries" and stores it in a list of Sales objects.
 
@@ -247,7 +252,7 @@ class ChartLine {
 
 // I hope this helps! Let me know if you have any questions.
 
-//In this example, we define a Sales class that holds the data for each entry, which consists of a DateTime and a quantity. We also define a TimeSeriesLineChart widget that retrieves data from a Firebase collection called "entries" and stores it in a list of Sales objects.
+//In this example, we define a ChartLine class that holds the data for each entry, which consists of a DateTime and a quantity. We also define a TimeSeriesLineChart widget that retrieves data from a Firebase collection called "entries" and stores it in a list of Sales objects.
 //
 // The getData method retrieves the data from Firebase and populates the _locationEntriesList list. We convert the Timestamp value in the "date" field to a DateTime object and create a Sales object with the date and quantity values. Once the data has been retrieved, we call setState to trigger a rebuild of the widget and display the chart.
 //
@@ -303,9 +308,6 @@ class ChartLine {
 //
 // // Printing the list of posts
 // print(posts);
-
-//==
-
 // CGPT suggestions:
 //here are some suggestions to improve your Flutter Dart code:
 // Consider adding error handling to the getLocationEntries() method.
@@ -381,7 +383,7 @@ class ChartLine {
 // the user navigates to a screen.
 // Remove commented-out code from your final code for readability.
 
-/* void getUserEntries() async {
+/* void getParticipantEntries() async {
     final firestore = FirebaseFirestore.instance; //Todo dont call instance twice!!!
     final user =
         FirebaseAuth.instance.currentUser; //get user email to filter querySnapshot on DB
@@ -414,3 +416,5 @@ class ChartLine {
       print("Error: $e"); //// Handle the error gracefully
     }
   }*/
+
+//==

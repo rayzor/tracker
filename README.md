@@ -1,9 +1,10 @@
-# tracker13  - Coder Dojo Club Project
-# trying to push to Github ..having trouble.
+# tracker15 -  validation Step in Main
+# Coder Dojo Club Project
 
-A generic tracker App to use as any tracker app.
-Authentication + data entry + chart. 
-will use for Single use plastics App at CoderDojo Club.
+A generic tracker App 
+used to record Community use of Single USe Plastics.
+3 parts: Login/Authentication + data entry + chart. 
+will use for Single Use Plastics App at CoderDojo Club.
 Based on Tommy's videos LearnFlutterWithMe.
 
 A new Flutter project. 
@@ -13,10 +14,10 @@ Database is Google Cloud Firestore
 Collection is called enteries
 A document record is created for each user entry
 The fields in the document are locationID, logDate, quantity, userID
-The Chart aggregates the Community Enteries per week and charts progress
+The Chart aggregates the Community Entries per week and charts progress
 
 11/02/2023
-- chart used ChatGPT code no errors - very good 
+- chart used ChatGPT code no errors - very good code.
 
 ================================
 ## Getting Started with Flutter

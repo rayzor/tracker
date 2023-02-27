@@ -1,9 +1,10 @@
+// tracker 16 :
 // This is Tommy's main page code for Cloud firestore Apples / Oranges
 // called from Main and cut down for Data Entry ... much better arch to do this but maybe best
 // to stick to his building blocks so the boys get how simple it is.
 
-// Note: ? means it is OK to be null but caution as it could fail
-// Note: ! means assert symbol saying I guarantee not null
+// Note: ? means it is OK to be null but caution as it could crash your code
+// Note: ! is the "assert symbol" saying I guarantee not null
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart'; //for all screen widgets, scaffold appbar etc
@@ -27,7 +28,7 @@ class DataEntryState extends State<DataEntry> {
   final dateFormatted = DateFormat.yMd().format(DateTime.now());
 // Todo ... decide final Date format style EU or US od location based.
   final myDateFormat = DateFormat('dd-MM-yyyy'); // Irish / British date format
-  String locationName = "myTown";
+  String locationName = "";
 
   //== Chat
   @override
@@ -37,7 +38,7 @@ class DataEntryState extends State<DataEntry> {
     getLocation(widget.currentUserEmail); // get the location for this emailUser
   }
 
-//== Chat
+//== ChatGPTcode
 
   Future<String> getLocation(String currentUserEmail) async {
     // Get a reference to the locations collection
@@ -50,18 +51,20 @@ class DataEntryState extends State<DataEntry> {
 
     // Check if any documents were returned by the query
     if (querySnapshot.size > 0) {
-      locationName = querySnapshot.docs.first.data()['locationName'];
+      setState(() {
+        // to build the screen when new locationName
+        locationName = querySnapshot.docs.first.data()['locationName'];
+      });
+      print("in querySnapshot [locationName] is ...$locationName");
 
-      //print("in DE querySS [locationName] is ...${locationName}");
-
-      return locationName;
+      return locationName.toString();
     } else {
       // Todo No documents were found, return null or throw an exception
-      return locationName = "myTown";
+      return locationName = "";
     }
   }
 
-  // Build Screen
+  // Build the Screen
   @override
   Widget build(BuildContext context) {
     // widget keyword is needed to expose currentUserEmail in this build Widget - wierd
@@ -97,15 +100,23 @@ class DataEntryState extends State<DataEntry> {
             //ToDo Expanded widget needed to only expand to available space & avoid ZEBRA yellow crossing
             Expanded(
               child: StreamBuilder(
-                stream: entries.orderBy('logDate').snapshots(),
+                stream: entries
+                    .orderBy('logDate')
+                    .where('locationID', isEqualTo: locationName.toString())
+                    .snapshots(),
                 builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                   if (!snapshot.hasData) {
-                    return const Center(child: Text('Loading'));
+                    // if no data // return const Center(child: Text('Loading'));
+                    return const CircularProgressIndicator();
                   }
                   // todo test EU date format
 
+                  //  return ListView.builder(
+                  //  itemCount: snapshot.data.docs.length, //Todo use Length to display for count of entries
+                  //  itemBuilder: (context, index) {
+                  //  DocumentSnapshot entry = snapshot.data.docs[index];
+
                   return ListView(
-                    // Note: ! is assert symbol saying I guarantee not null
                     children: snapshot.data!.docs.map((entry) {
                       return Center(
                         child: ListTile(
@@ -123,7 +134,7 @@ class DataEntryState extends State<DataEntry> {
                           },
                         ),
                       );
-                    }).toList(),
+                    }).toList(), // convert the Map to a List for use in ListView
                   );
                 },
               ),
@@ -159,7 +170,7 @@ class DataEntryState extends State<DataEntry> {
   }
 }
 
-// Chat GPT suggestion - good code. prevents test entry OR edit - numbers only allowed.
+// Chat GPT suggestion - good code. prevents text entry OR edit - numbers only allowed.
 class IntegerInputFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
@@ -167,7 +178,9 @@ class IntegerInputFormatter extends TextInputFormatter {
     // Regular expression that matches only digits
     final RegExp digitRegex = RegExp(r'\d+');
 
-    String newString = digitRegex.stringMatch(newValue.text) ?? '';
+    // The ?? is the null coalescing operator.
+    // It is used to provide a default value when a variable is null.
+    String newString = digitRegex.stringMatch(newValue.text) ?? ''; //if null assign ''
     return TextEditingValue(
       text: newString,
       selection: TextSelection.collapsed(offset: newString.length),
