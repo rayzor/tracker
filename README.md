@@ -1,8 +1,9 @@
-# tracker15 -  validation Step in Main
+# tracker16 -  validation Step in Main
 # Coder Dojo Club Project
+# Single Use Plastics Tracker
 
 A generic tracker App 
-used to record Community use of Single USe Plastics.
+used to record Community use of Single Use Plastics.
 3 parts: Login/Authentication + data entry + chart. 
 will use for Single Use Plastics App at CoderDojo Club.
 Based on Tommy's videos LearnFlutterWithMe.

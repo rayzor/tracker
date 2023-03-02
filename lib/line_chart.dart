@@ -1,11 +1,10 @@
-// tracker16 - user location chart
+// tracker17 - user location chart
 import 'package:charts_flutter_new/flutter.dart'; //as charts;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class TimeSeriesLineChart extends StatefulWidget {
   final String currentUserEmail; // passed from the Navigator in main
-  //const DataEntry({Key? key, required this.currentUserEmail}) : super(key: key);
   const TimeSeriesLineChart({Key? key, required this.currentUserEmail}) : super(key: key);
 
   @override

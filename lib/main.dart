@@ -1,4 +1,4 @@
-// tracker16 from Tommy's firebase Login complete code.
+// tracker17 from Tommy's firebase Login complete code.
 // just one mod to Tommy to put MaterialApp at top of tree so that Navigator code worked.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -34,14 +34,13 @@ class AuthAppState extends State<AuthApp> {
   final locationController = TextEditingController();
   final GlobalKey<FormState> _key = GlobalKey<FormState>(); // for validation Step 4
   String errorMessage = '';
-  User? user;
   CollectionReference? locationsCollection;
 
   @override
   Widget build(BuildContext context) {
-    //here "user" is an Instance of USER NOT current user as I thought
-    // bad code  user should only be called once in initState()
     User? user = FirebaseAuth.instance.currentUser;
+
+    print("IN BUILD ........ user is  $user");
 
     return MaterialApp(
       home: Scaffold(
@@ -74,13 +73,23 @@ class AuthAppState extends State<AuthApp> {
                       onPressed: () async {
                         if (_key.currentState!.validate()) {
                           try {
-                            await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                            UserCredential userCredential = await FirebaseAuth.instance
+                                .createUserWithEmailAndPassword(
                               email: emailController.text,
                               password: passwordController.text,
                             );
                             // If authenticated then user != null,
                             // then create a location record in the locations collection
+
+                            //before user not null test
+                            print("BEFORE USER NOT NULL TEST user is $userCredential");
+
+                            //chatGPT fix to ensure user is instanciated before test for null
+                            final User? user = userCredential.user;
+
                             if (user != null) {
+                              // after user not null test
+                              print("AFTER USER NOT NULL TEST USER IS $user");
                               await FirebaseFirestore.instance
                                   .collection('locations')
                                   .doc()
@@ -128,10 +137,10 @@ class AuthAppState extends State<AuthApp> {
                             );
                           }
                           setState(() {
-                            print("got ${locationController.text}");
+                            print("WE GOT LOCATION  ${locationController.text}");
                           });
-                        }
-                      },
+                        } // if validate
+                      }, //onPressed
                     ),
 
                     //==Chat
@@ -144,7 +153,7 @@ class AuthAppState extends State<AuthApp> {
                               email: emailController.text,
                               password: passwordController.text,
                             );
-                            print("User on Login is  $user ");
+                            print("USER ON LOGIN is  $user ");
                             //rayMod to navigate to data entry screen
                             //  if (user != null) {
 
