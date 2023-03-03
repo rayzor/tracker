@@ -77,9 +77,9 @@ class DataEntryState extends State<DataEntry> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: Text('Single Use Plastics Tracker - $locationName ',
+          title: Text('Date Entry - Single Use Plastics Tracker - $locationName ',
               //overflow: ,
-              style: const TextStyle(fontSize: 18)),
+              style: const TextStyle(fontSize: 14)),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () => Navigator.pop(context),

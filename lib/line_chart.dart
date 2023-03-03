@@ -185,7 +185,7 @@ class TimeSeriesLineChartState extends State<TimeSeriesLineChart> {
                   //  defaultRenderer: LineRendererConfig(includePoints: true),
                   behaviors: [
                     ChartTitle('Single Use Plastics - ' + '$locationName',
-                        subTitle: 'Weekly trend per 1000 residents',
+                        subTitle: 'Weekly trend per 100 residents',
                         behaviorPosition: BehaviorPosition.top,
                         titleOutsideJustification: OutsideJustification.middle,
                         titleStyleSpec: const TextStyleSpec(
