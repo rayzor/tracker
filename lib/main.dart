@@ -1,4 +1,4 @@
-// tracker17 from Tommy's firebase Login complete code.
+// tracker20 from Tommy's firebase Login complete code.
 // just one mod to Tommy to put MaterialApp at top of tree so that Navigator code worked.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -34,13 +34,13 @@ class AuthAppState extends State<AuthApp> {
   final locationController = TextEditingController();
   final GlobalKey<FormState> _key = GlobalKey<FormState>(); // for validation Step 4
   String errorMessage = '';
-  CollectionReference? locationsCollection;
+  //CollectionReference? locationsCollection;
 
   @override
   Widget build(BuildContext context) {
     User? user = FirebaseAuth.instance.currentUser;
 
-    print("IN BUILD ........ user is  $user");
+    //print("IN BUILD ........ user is  $user");
 
     return MaterialApp(
       home: Scaffold(
@@ -207,7 +207,7 @@ class AuthAppState extends State<AuthApp> {
                   ],
                 ),
 
-                // rayMod - new button to go to Chart screen - just convient for now .. rejig
+                // rayMod - new button to go to Chart screen - just convenient for now .. rejig
                 ElevatedButton(
                   child: Text('Chart'),
                   onPressed: () {
@@ -240,8 +240,11 @@ class AuthAppState extends State<AuthApp> {
 
 //== Validation Step4 video and code steps https://learnflutterwithme.com/firebase-auth-validation
 String? validateEmail(String? formEmail) {
+  // ? to allow email could be null
   if (formEmail == null || formEmail.isEmpty) return 'E-mail address is required.';
 
+  // Regular expression pattern for email validation
+  // final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$'); // more elaborate Regex
   String pattern = r'\w+@\w+\.\w+';
   RegExp regex = RegExp(pattern);
   if (!regex.hasMatch(formEmail)) return 'Invalid E-mail Address format.';
@@ -270,6 +273,7 @@ String? validatePassword(String? formPassword) {
 //Todo
 // Notes Only - delete on final code before release
 // User fields on Firebase...
+
 /*
 User(
 displayName: ,
@@ -292,4 +296,8 @@ uid: test0@test.com)
 ],
 refreshToken: ,
 tenantId: null,
-uid: 2VVnhCWTn9UH1EDViCxbR8F0wRd2)*/
+uid: 2VVnhCWTn9UH1EDViCxbR8F0wRd2)*/ /*
+*/
+/*
+*/ /*
+*/

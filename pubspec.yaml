@@ -39,6 +39,7 @@ dependencies:
   firebase_auth: ^4.2.5
   cloud_firestore: ^4.3.1
   charts_flutter_new: ^0.12.0
+  collection: ^1.17.0
 
 dev_dependencies:
   flutter_test:

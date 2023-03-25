@@ -1,4 +1,4 @@
-// tracker 17 :
+// tracker 20 :
 // This is Tommy's main page code for Cloud firestore Apples / Oranges
 // called from Main and cut down for Data Entry ... much better arch to do this but maybe best
 // to stick to his building blocks so the boys get how simple it is.
@@ -26,20 +26,33 @@ class DataEntryState extends State<DataEntry> {
   // ToDo rayDevOnly final String location = "Glanmire"; // pick up the user location later from dropdown
   final DateTime today = DateTime.now();
   final dateFormatted = DateFormat.yMd().format(DateTime.now());
-// Todo ... decide final Date format style EU or US od location based.
+// Todo ... decide final Date format style EU or US or location based.
   final myDateFormat = DateFormat('dd-MM-yyyy'); // Irish / British date format
+  final int yearNumber = DateTime.now().year; // use for aggregating
+  late int weekNumber; // use for aggregating
   String locationName = "";
 
   //== Chat
   @override
   void initState() {
     super.initState();
+    weekNumber = _getWeekNumber(
+        today); // for easy calc the week number for aggregating quantities by week
     //todo Fix this is not a string for Mallow it is an object.. must do convert to list and extract see. chart code
     getLocation(widget.currentUserEmail); // get the location for this emailUser
   }
 
-//== ChatGPTcode
+// Chat GPT how to calc the week number . combine with yearNumber for unique range
+  int _getWeekNumber(DateTime date) {
+    // Calculate the difference in days between the date and the first day of the year
+    int diff = date.difference(DateTime(date.year, 1, 1)).inDays; //days diff
+    // Calculate the week number by dividing the difference by 7
+    // and adding 1 to account for the first week of the year
+    return ((diff / 7) + 1)
+        .floor(); //floor to round down to integer. starts at zero so add1
+  }
 
+//== ChatGPT code
   Future<String> getLocation(String currentUserEmail) async {
     // Get a reference to the locations collection
     CollectionReference<Map<String, dynamic>> locations =
@@ -127,7 +140,6 @@ class DataEntryState extends State<DataEntry> {
                           // works leading: Text(DateFormat.yMd().format(entry['logDate'].toDate())),
 
                           title: Text(myDateFormat.format(entry['logDate'].toDate())),
-
                           onLongPress: () {
                             entry.reference
                                 .delete(); // ToDo handy but remove in final app
@@ -141,6 +153,7 @@ class DataEntryState extends State<DataEntry> {
             ),
           ]),
         ),
+        // FAB to submit plastic quantity
         floatingActionButton: FloatingActionButton(
           child: const Icon(Icons.save),
           onPressed: () {
@@ -148,7 +161,10 @@ class DataEntryState extends State<DataEntry> {
               // ToDo use seconds since EPOCH or maybe week number & year
               //'logDate': DateTime.now(),
               'logDate': Timestamp.fromDate(DateTime.now()),
-
+              // added year number and week number to database
+              'yearNumber': yearNumber,
+              'weekNumber': weekNumber,
+              //weekNumber
               // Todo locationID  Do Dropdown Select
               'locationID': locationName,
               'quantity': int.parse(
