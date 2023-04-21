@@ -34,7 +34,7 @@ class AuthAppState extends State<AuthApp> {
   final locationController = TextEditingController();
   final GlobalKey<FormState> _key = GlobalKey<FormState>(); // for validation Step 4
   String errorMessage = '';
-  //CollectionReference? locationsCollection;
+  CollectionReference? locationsCollection;
 
   @override
   Widget build(BuildContext context) {
@@ -52,6 +52,22 @@ class AuthAppState extends State<AuthApp> {
           child: Center(
             child: Column(
               children: [
+                // Do a Sizedbox here to make space above the login
+
+                /*
+                SizedBox(
+                  height: 40,
+                  child: Center(
+                    //child: Image.asset('plastics.img'),
+                    child: Text("Glanmire Plastics Tracker",
+                        style: TextStyle(
+                          backgroundColor: Colors.lightGreenAccent,
+                          fontSize: 24,
+                        )),
+                  ),
+                ),
+                */
+
                 TextFormField(controller: emailController, validator: validateEmail),
                 TextFormField(
                     controller: passwordController, validator: validatePassword),
@@ -240,11 +256,8 @@ class AuthAppState extends State<AuthApp> {
 
 //== Validation Step4 video and code steps https://learnflutterwithme.com/firebase-auth-validation
 String? validateEmail(String? formEmail) {
-  // ? to allow email could be null
   if (formEmail == null || formEmail.isEmpty) return 'E-mail address is required.';
 
-  // Regular expression pattern for email validation
-  // final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$'); // more elaborate Regex
   String pattern = r'\w+@\w+\.\w+';
   RegExp regex = RegExp(pattern);
   if (!regex.hasMatch(formEmail)) return 'Invalid E-mail Address format.';
@@ -258,6 +271,7 @@ String? validatePassword(String? formPassword) {
   if (formPassword == null || formPassword.isEmpty) return 'Password is required.';
 
   String pattern = r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$';
+
   RegExp regex = RegExp(pattern);
   if (!regex.hasMatch(formPassword))
     return '''
@@ -273,7 +287,6 @@ String? validatePassword(String? formPassword) {
 //Todo
 // Notes Only - delete on final code before release
 // User fields on Firebase...
-
 /*
 User(
 displayName: ,
@@ -296,8 +309,4 @@ uid: test0@test.com)
 ],
 refreshToken: ,
 tenantId: null,
-uid: 2VVnhCWTn9UH1EDViCxbR8F0wRd2)*/ /*
-*/
-/*
-*/ /*
-*/
+uid: 2VVnhCWTn9UH1EDViCxbR8F0wRd2)*/

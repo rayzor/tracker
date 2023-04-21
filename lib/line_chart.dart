@@ -39,7 +39,6 @@ class _TimeSeriesLineChartState extends State<TimeSeriesLineChart> {
   @override
   void initState() {
     super.initState();
-
     _initialize();
   }
 
@@ -52,13 +51,15 @@ class _TimeSeriesLineChartState extends State<TimeSeriesLineChart> {
   }
 
   void _getDataPoints() async {
-    QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore.instance
-        .collection('entries')
-        .where('locationID', isEqualTo: _locationID)
-        .orderBy('logDate', descending: false) // order by date in ascending order
-        .get();
+    QuerySnapshot<Map<String, dynamic>> snapshot =
+        await FirebaseFirestore.instance //wakeup Firebase
+            .collection('entries')
+            .where('locationID', isEqualTo: _locationID)
+            .orderBy('logDate', descending: false) // order by date in ascending order
+            .get();
 
     Map<String, List<Entry>> groupedEntries = {};
+
     snapshot.docs.forEach((doc) {
       Entry entry = Entry(
         locationID: doc['locationID'],
@@ -75,25 +76,37 @@ class _TimeSeriesLineChartState extends State<TimeSeriesLineChart> {
     });
 
     List<DataPoint> dataPoints = [];
-    groupedEntries.forEach((key, value) {
-      List<String> parts = key.split('-');
-      int yearNumber = int.parse(parts[0]);
-      int weekNumber = int.parse(parts[1]);
+    // to group the entries by week
+    groupedEntries.forEach(
+      (key, value) {
+        List<String> parts = key.split('-');
+        int yearNumber = int.parse(parts[0]);
+        int weekNumber = int.parse(parts[1]);
 
-      int totalQuantity =
-          value.fold(0, (previousValue, element) => previousValue + element.quantity);
-      int _kount = value.length; // count of items in value list to calc average
+        int totalQuantity =
+            value.fold(0, (previousValue, element) => previousValue + element.quantity);
 
-      print("_kount is  ... $_kount");
-      //int normalizedValue = ((totalQuantity / _kount) * 100).floor(); // per 100 users
-      int normalizedValue = (totalQuantity / _kount).floor(); // average
-      DataPoint dataPoint = DataPoint(yearNumber, weekNumber, normalizedValue);
+        int _kount =
+            value.length; // count of items in value list to calc average use length fn
 
-      dataPoints.add(dataPoint);
-      print("_locationID is ... $_locationID");
-      print(
-          "YearNum weekNumber normalizedValue = $yearNumber - $weekNumber - $totalQuantity");
-    });
+        //int averageQuantity = ((totalQuantity / _kount) * 100).floor(); // per 100 users
+        int averageQuantity = (totalQuantity / _kount).floor(); // average
+
+        DataPoint dataPoint = DataPoint(yearNumber, weekNumber, averageQuantity);
+
+        dataPoints.add(dataPoint);
+
+        print("-----------------------------------------------");
+        print("_locationID is - $_locationID");
+        print("_weekNumber is - $weekNumber");
+        print("_kount of entries this week is - $_kount");
+        print(" total quantity of plastic items this week is - $totalQuantity");
+        print(
+            "So the average single use plastics this week is (total/entries) - $averageQuantity");
+        print(
+            " yearNumber weekNumber totalQuantity averageQuantity = $yearNumber - $weekNumber - $totalQuantity - $averageQuantity");
+      },
+    );
 
     setState(() {
       this.dataPoints = dataPoints;
@@ -102,11 +115,13 @@ class _TimeSeriesLineChartState extends State<TimeSeriesLineChart> {
 
   @override
   Widget build(BuildContext context) {
+    // the X-axis of the chart is domainFn of dates
+    // the Y-axis of the chart is measureFn of quantity
     List<charts.Series<DataPoint, DateTime>> seriesList = [
       charts.Series<DataPoint, DateTime>(
         id: 'Quantity',
         colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
-        // very smart to calc date for the x-axis from Jan1 plus weekNumber-1/7 // ChatGPT
+        // ChatGPT very smart to calc date for the x-axis from Jan1 plus weekNumber-1/7 // ChatGPT
         domainFn: (DataPoint dataPoint, _) => DateTime(dataPoint.yearNumber, 1, 1)
             .add(Duration(days: (dataPoint.weekNumber - 1) * 7)),
         measureFn: (DataPoint dataPoint, _) => dataPoint.totalQuantity,
@@ -128,7 +143,7 @@ class _TimeSeriesLineChartState extends State<TimeSeriesLineChart> {
               ),
               behaviors: [
                 charts.ChartTitle('Single Use Plastics - ' + '', //'$locationID',
-                    subTitle: 'Weekly trend - average per participant',
+                    subTitle: 'Weekly Trend - Average',
                     behaviorPosition: charts.BehaviorPosition.top,
                     titleOutsideJustification: charts.OutsideJustification.middle,
                     titleStyleSpec: const charts.TextStyleSpec(
