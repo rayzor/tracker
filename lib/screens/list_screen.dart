@@ -1,4 +1,4 @@
-// tracker 20 :
+// tracker 29 : ListView of all Community Entries
 // This is Tommy's main page code for Cloud firestore Apples / Oranges
 // called from Main and cut down for Data Entry ... much better arch to do this but maybe best
 // to stick to his building blocks so the boys get how simple it is.
@@ -11,48 +11,45 @@ import 'package:flutter/material.dart'; //for all screen widgets, scaffold appba
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart'; // for DateFormats
 
-class DataEntry extends StatefulWidget {
+class ListScreen extends StatefulWidget {
   // Declare a field that holds the currentUserEmail from Navigator pushed from main.dart
-  final String currentUserEmail; // passed from the Navigator in main
-  const DataEntry({Key? key, required this.currentUserEmail}) : super(key: key);
+  final String currentUserEmail; // passed from the Navigator in main / login
+  const ListScreen({Key? key, required this.currentUserEmail}) : super(key: key);
 
   @override
-  DataEntryState createState() => DataEntryState();
+  ListDataViewState createState() => ListDataViewState();
 }
 
-class DataEntryState extends State<DataEntry> {
+class ListDataViewState extends State<ListScreen> {
   final quantity =
       TextEditingController(); // used to input data .. number of plastic items
-  //int quantityLimit = 50; // limit users to this quantity inputted to stop messers entering 10,000
-
   // ToDo rayDevOnly final String location = "Glanmire"; // pick up the user location later from dropdown
-  final DateTime today = DateTime.now(); // this give today's date.
+  final DateTime today = DateTime.now();
   final dateFormatted = DateFormat.yMd().format(DateTime.now());
 // Todo ... decide final Date format style EU or US or location based.
   final myDateFormat = DateFormat('dd-MM-yyyy'); // Irish / British date format
-  final int yearNumber = DateTime.now().year; // use for aggregating
-  late int weekNumber; // use for aggregating
+  final int yearNumber =
+      DateTime.now().year; // use for aggregating su plastics by yearWeek
+  late int weekNumber; // use for aggregating plastics by week
   String locationName = "";
 
-  //== ChatGPT code
+  //== Chat
   @override
   void initState() {
     super.initState();
     weekNumber = _getWeekNumber(
         today); // for easy calc the week number for aggregating quantities by week
-    //todo Fix. this is not a string for Mallow it is an object.. must do convert to list and extract see. chart code
-    getLocation(widget
-        .currentUserEmail); // get the location for this emailUser, Glanmire or Watergrasshill etc
+    //todo Fix this is not a string for Glanmire it is an object.. must do convert to list and extract see. chart code
+    getLocation(widget.currentUserEmail); // get the location for this emailUser
   }
 
-// Chat GPT how to calc the week number . combine with yearNumber for unique range
+// Chat GPT how to calc the week number . combine with yearNumber for unique index to weekly entries
   int _getWeekNumber(DateTime date) {
     // Calculate the difference in days between the date and the first day of the year
     int diff = date.difference(DateTime(date.year, 1, 1)).inDays; //days diff
     // Calculate the week number by dividing the difference by 7
-    // and adding 1 to account for the first week of the year is week zero in computerland
-    return ((diff / 7) + 1)
-        .floor(); //floor to round down to integer. starts at zero so add 1
+    // and adding 1 to account for the first week of the year
+    return ((diff / 7) + 1).floor(); //floor to round down to integer.
   }
 
 //== ChatGPT code
@@ -71,7 +68,7 @@ class DataEntryState extends State<DataEntry> {
         // to build the screen when new locationName
         locationName = querySnapshot.docs.first.data()['locationName'];
       });
-      print("in querySnapshot [locationName] is ...$locationName");
+      //print("in querySnapshot [locationName] is ...$locationName");
 
       return locationName.toString();
     } else {
@@ -83,7 +80,7 @@ class DataEntryState extends State<DataEntry> {
   // Build the Screen
   @override
   Widget build(BuildContext context) {
-    // widget keyword is needed here to expose currentUserEmail in this build Widget - not intuitive a bit wierd
+    // widget keyword is needed to expose currentUserEmail in this build Widget - wierd
     final userEmail = widget.currentUserEmail;
 
     // get all entries here for display in Stream in ListView.
@@ -93,7 +90,7 @@ class DataEntryState extends State<DataEntry> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: Text('Date Entry - Single Use Plastics Tracker - $locationName ',
+          title: Text('$locationName Single Use Plastics List View',
               //overflow: ,
               style: const TextStyle(fontSize: 14)),
           leading: IconButton(
@@ -103,16 +100,18 @@ class DataEntryState extends State<DataEntry> {
         ),
         body: Center(
           child: Column(children: [
-            TextField(
+            // Omit from list view ==================
+            /*TextField(
               controller: quantity,
-              decoration: const InputDecoration(
-                  hintText:
-                      "Enter the number of plastic items in your Recycling Bin this week"),
+              decoration:
+                  const InputDecoration(hintText: "Enter quantity of plastic items"),
               inputFormatters: [
                 // to restrict data entry to numbers only from ChatGPt
                 IntegerInputFormatter()
               ],
-            ),
+            ),*/
+
+            // omit from list view
 
             //ToDo Expanded widget needed to only expand to available space & avoid ZEBRA yellow crossing
             Expanded(
@@ -157,10 +156,9 @@ class DataEntryState extends State<DataEntry> {
             ),
           ]),
         ),
-
         // FAB to submit plastic quantity
         floatingActionButton: FloatingActionButton(
-          child: const Icon(Icons.add),
+          child: const Icon(Icons.save),
           onPressed: () {
             entries.add({
               // ToDo use seconds since EPOCH or maybe week number & year
@@ -172,7 +170,8 @@ class DataEntryState extends State<DataEntry> {
               //weekNumber
               // Todo locationID  Do Dropdown Select
               'locationID': locationName,
-              'quantity': int.parse(quantity.text), // parse converts Text input to int
+              'quantity': int.parse(
+                  quantity.text), // parse means convert Text input to int for Firestore
               'userID': userEmail,
             });
             quantity.clear();
@@ -192,8 +191,6 @@ class DataEntryState extends State<DataEntry> {
 
 // Chat GPT suggestion - good code. prevents text entry OR edit - numbers only allowed.
 class IntegerInputFormatter extends TextInputFormatter {
-  num get quantityLimit => 50;
-
   @override
   TextEditingValue formatEditUpdate(
       TextEditingValue oldValue, TextEditingValue newValue) {
@@ -203,12 +200,6 @@ class IntegerInputFormatter extends TextInputFormatter {
     // The ?? is the null coalescing operator.
     // It is used to provide a default value when a variable is null.
     String newString = digitRegex.stringMatch(newValue.text) ?? ''; //if null assign ''
-
-    // ToDo Limit the input quantity to 50 to stop messers
-    if (newString.isNotEmpty && int.parse(newString) > quantityLimit) {
-      newString = quantityLimit.toString();
-    }
-
     return TextEditingValue(
       text: newString,
       selection: TextSelection.collapsed(offset: newString.length),
