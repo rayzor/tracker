@@ -68,6 +68,11 @@ flutter:
     - assets/images/jellyfish.jpg
     - assets/images/dandelions.png
     - assets/images/flying-dandelions.png
+    - assets/images/boy_sea.jpg
+    - assets/images/boy_bottle.jpg
+    - assets/images/plastic_bottles.jpg
+
+
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

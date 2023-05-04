@@ -1,28 +1,23 @@
-<<<<<<< HEAD
-# Coder Dojo Club Project
-# Single Use Plastics Tracker
->>>>>>> d9e8110efc24b81f67290a64f97454d73af58958
+Coder Dojo Club Project - Single Use Plastics Tracker
 
-A generic tracker App
-used to record Community use of Single Use Plastics.
-3 parts: Login/Authentication + data entry + chart.
-will use for Single Use Plastics App at CoderDojo Club.
-Based on Tommy's videos LearnFlutterWithMe.
+A generic tracker App developed in Flutter by Coder Dojo Club - Glanmire.
+It can be used to record Community use of Single Use Plastics.
+It has 3 parts: Login/Authentication + data entry + chart.
 
-A new Flutter project.
-Tracker a generic Fluter Firebase app as base to track Single Use Plastics
+Based on Tommy's videos at https://learnflutterwithme.com/
 
-Database is Google Cloud Firestore
-Collection is called entries
+Database is Google Cloud Firestore.
+Collection is called 'entries'
 A document record is created for each user entry
 The fields in the document are locationID, logDate, quantity, userID
-The Chart aggregates the Community Entries per week and charts progress
+The Chart aggregates the Community Entries per week and charts progress.
+The Chart also shows the individual user usage trends.
 
-11/02/2023
-- chart used ChatGPT code  - no errors.
+Communities will be limited in the trial to 10 communities.
 
-================================
-## Getting Started with Flutter
+ChatGPT assist code used - no errors.
+
+===== Getting Started with Flutter
 
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,

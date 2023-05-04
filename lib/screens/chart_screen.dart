@@ -4,34 +4,37 @@
 // Note: ! is the "assert symbol" saying I guarantee not null
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart'; //for all screen widgets, scaffold appbar etc
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 import '../helpers/chart_helpers.dart';
-import 'login_screen.dart';
+import 'home_screen.dart';
 
 class ChartScreen extends StatefulWidget {
+  final User user;
+  ChartScreen({required this.user});
   //final GlobalKey<_TimeSeriesLineChartState> chartKey = GlobalKey(); //Error
 
   // Declare a field that holds the currentUserEmail from Navigator pushed from login
   // final User user;
   //    LoginScreen({required this.user});
 
-  final String currentUserEmail; // passed from the Navigator in main
-  const ChartScreen(
-      {Key? key,
-      // required this.chartKey,
-      required this.currentUserEmail})
-      : super(key: key);
+  //const ChartScreen( {Key? key,
+  //    // required this.chartKey,
+  //    required this.currentUserEmail})
+  //   : super(key: key);
 
   @override
-  DataEntryState createState() => DataEntryState();
+  ChartScreenState createState() => ChartScreenState();
 }
 
-class DataEntryState extends State<ChartScreen> {
+class ChartScreenState extends State<ChartScreen> {
   // late User _currentUser;
 
+  late User _currentUser;
+  //late late final String currentUserEmail = user.email.toString(); // passed from the Navigator in main
   //================= CGPT 1 Mod
   // chat gpt code to redraw chart when new data is entered.
   // needed to redraw chart on data entry
@@ -61,12 +64,13 @@ class DataEntryState extends State<ChartScreen> {
   void initState() {
     super.initState();
     // _currentUser = widget.user;
-
+    _currentUser = widget.user;
+    //currentUserEmail = widget.user.email;
     weekNumber = _getWeekNumber(
         today); // for easy calc the week number for aggregating quantities by week
     //todo Fix. this is not a string for Mallow it is an object.. must do convert to list and extract see. chart code
-    getLocation(widget
-        .currentUserEmail); // get the location for this emailUser, Glanmire or Watergrasshill etc
+    getLocation(widget.user.email.toString());
+    //.currentUserEmail); // get the location for this emailUser, Glanmire or Watergrasshill etc
   }
 
 // Chat GPT how to calc the week number . combine with yearNumber for unique range
@@ -107,7 +111,7 @@ class DataEntryState extends State<ChartScreen> {
   @override
   Widget build(BuildContext context) {
     // widget keyword is needed here to expose currentUserEmail in this build Widget - not intuitive a bit wierd
-    final userEmail = widget.currentUserEmail;
+    final userEmail = widget.user.email;
 
     // get all entries here for display in Stream in ListView.
     // Get a reference to the entries collection
@@ -128,7 +132,10 @@ class DataEntryState extends State<ChartScreen> {
 
                   Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
-                      builder: (context) => LoginScreen(),
+                      // builder: (context) => LoginScreen(),
+                      builder: (context) => HomeScreen(
+                        user: widget.user,
+                      ),
                     ),
                   )),
         ),
@@ -149,7 +156,8 @@ class DataEntryState extends State<ChartScreen> {
             Expanded(
               child: TimeSeriesLineChart(
                 //  chartKey: chartKey,
-                currentUserEmail: userEmail,
+                //currentUserEmail: userEmail,
+                currentUserEmail: userEmail.toString(),
               ),
             )
 

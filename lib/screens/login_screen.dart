@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:tracker/screens/chart_screen.dart';
+import 'package:tracker/screens/signup_screen.dart';
 
 import '../helpers/auth_helpers.dart';
 import '../helpers/validator_helpers.dart';
@@ -88,7 +89,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               decoration: const BoxDecoration(
                                 image: DecorationImage(
                                   image:
-                                      AssetImage('assets/images/flying-dandelions.png'),
+                                      //  AssetImage('assets/images/flying-dandelions.png'),
+                                      AssetImage('assets/images/boy_sea.jpg'),
                                 ),
                               ),
                             ),
@@ -286,12 +288,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                                 if (user != null) {
                                                   Navigator.of(context).pushReplacement(
                                                     MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            //    HomeScreen(user: user),
-                                                            ChartScreen(
-                                                                currentUserEmail: user
-                                                                    .email
-                                                                    .toString())),
+                                                      builder: (context) =>
+                                                          //    HomeScreen(user: user),
+                                                          ChartScreen(user: user),
+                                                      // ChartScreen(currentUserEmail: user.email.toString()),
+                                                    ),
                                                   );
                                                 }
                                               }
@@ -311,6 +312,60 @@ class _LoginScreenState extends State<LoginScreen> {
                                           // ),
                                         ),
                                       ),
+
+                                // =======Try 3 put Forgot password
+                                //
+                                SizedBox(height: 10.0),
+                                //   Expanded(
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) => SignUpScreen(),
+                                      ),
+                                    );
+                                  },
+                                  child: Text(
+                                    'Forgot password',
+                                    style: TextStyle(color: Colors.white, fontSize: 12),
+                                  ),
+                                  style: ButtonStyle(
+                                    backgroundColor:
+                                        MaterialStateProperty.all(Colors.black12),
+                                  ),
+                                ),
+                                //   )
+
+                                // =========== Try 3
+
+                                // =======Try 4 put signup below the login
+                                SizedBox(height: 10.0),
+                                //   Expanded(
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) => SignUpScreen(),
+                                      ),
+                                    );
+                                  },
+                                  child: Text(
+                                    'Join In - SignUp',
+                                    style: TextStyle(color: Colors.white, fontSize: 14),
+                                  ),
+                                  style: ButtonStyle(
+                                    backgroundColor:
+                                        MaterialStateProperty.all(Colors.lightBlueAccent),
+                                  ),
+                                ),
+                                //   )
+
+                                // =========== Try 4
+                                SizedBox(height: 24.0),
+                                Text(
+                                  '@Coder Dojo Club - Glanmire',
+                                  style: TextStyle(color: Colors.black87),
+                                ),
                               ],
                             ),
                           ),
