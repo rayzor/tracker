@@ -1,4 +1,7 @@
-// tracker 27 - PreTabs :
+// tracker 27 - PReTabs :
+// This is Tommy's main page code for Cloud firestore Apples / Oranges
+// called from Main and cut down for Data Entry ... much better arch to do this but maybe best
+// to stick to his building blocks so the boys get how simple it is.
 
 // Note: ? means it is OK to be null but caution as it could crash your code
 // Note: ! is the "assert symbol" saying I guarantee not null
@@ -10,31 +13,27 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 import '../helpers/chart_helpers.dart';
-import 'home_screen.dart';
 
-class ChartScreen extends StatefulWidget {
-  final User user; // full user fields forwarded from login
-  ChartScreen({required this.user});
+//import 'line_chart.dart';
+//import 'lib/helpers/chart_helpers.dart';
+//import '     ';
+
+class DataEntry extends StatefulWidget {
   //final GlobalKey<_TimeSeriesLineChartState> chartKey = GlobalKey(); //Error
 
-  // Declare a field that holds the currentUserEmail from Navigator pushed from login
-  // final User user;
-  //    LoginScreen({required this.user});
+  final User user; // full user fields forwarded from login
+  DataEntry({required this.user});
 
-  //const ChartScreen( {Key? key,
-  //    // required this.chartKey,
-  //    required this.currentUserEmail})
-  //   : super(key: key);
+  // Declare a field that holds the currentUserEmail from Navigator pushed from login
+  //final String currentUserEmail; // passed from the Navigator in main
+  //const DataEntry( {Key? key,  // required this.chartKey,
+  //    required this.currentUserEmail})  : super(key: key);
 
   @override
-  ChartScreenState createState() => ChartScreenState();
+  DataEntryState createState() => DataEntryState();
 }
 
-class ChartScreenState extends State<ChartScreen> {
-  // late User _currentUser;
-
-  late User _currentUser;
-  //late late final String currentUserEmail = user.email.toString(); // passed from the Navigator in main
+class DataEntryState extends State<DataEntry> {
   //================= CGPT 1 Mod
   // chat gpt code to redraw chart when new data is entered.
   // needed to redraw chart on data entry
@@ -57,20 +56,17 @@ class ChartScreenState extends State<ChartScreen> {
   final myDateFormat = DateFormat('dd-MM-yyyy'); // Irish / British date format
   final int yearNumber = DateTime.now().year; // use for aggregating
   late int weekNumber; // use for aggregating
-  //String locationName = "";
+  String locationName = "";
 
   //== ChatGPT code
   @override
   void initState() {
     super.initState();
-    // _currentUser = widget.user;
-    _currentUser = widget.user;
-    //currentUserEmail = widget.user.email;
     weekNumber = _getWeekNumber(
         today); // for easy calc the week number for aggregating quantities by week
     //todo Fix. this is not a string for Mallow it is an object.. must do convert to list and extract see. chart code
-    //   getLocation(widget.user.email.toString());
-    //.currentUserEmail); // get the location for this emailUser, Glanmire or Watergrasshill etc
+    getLocation(widget.user.email.toString());
+    //  .currentUserEmail); // get the location for this emailUser, Glanmire or Watergrasshill etc
   }
 
 // Chat GPT how to calc the week number . combine with yearNumber for unique range
@@ -84,7 +80,7 @@ class ChartScreenState extends State<ChartScreen> {
   }
 
 //== ChatGPT code
-  /* Future<String> getLocation(String currentUserEmail) async {
+  Future<String> getLocation(String currentUserEmail) async {
     // Get a reference to the locations collection
     CollectionReference<Map<String, dynamic>> locations =
         FirebaseFirestore.instance.collection('locations');
@@ -97,82 +93,63 @@ class ChartScreenState extends State<ChartScreen> {
     if (querySnapshot.size > 0) {
       setState(() {
         // to build the screen when new locationName
-        currentlocation = querySnapshot.docs.first.data()['locationName'];
+        locationName = querySnapshot.docs.first.data()['locationName'];
       });
       //print("in querySnapshot [locationName] is ...$locationName");
-      return currentLocation.toString();
+      return locationName.toString();
     } else {
       // Todo: No documents were found, return null or throw an exception
-      return currentLocation = "";
+      return locationName = "";
     }
   }
-*/
+
   // Build the Screen
   @override
   Widget build(BuildContext context) {
     // widget keyword is needed here to expose currentUserEmail in this build Widget - not intuitive a bit wierd
-    // final userEmail = widget.user.email;
+    final userEmail = widget.user.email.toString();
 
-    String? _currentUserEmail = widget.user.email;
-    print(" >>>> In ChartScreen _current user is ${_currentUserEmail}");
-    String? _currentLocation = widget.user.displayName;
-    print(" >>>> In ChartScreen _current Location is ${_currentLocation}");
     // get all entries here for display in Stream in ListView.
     // Get a reference to the entries collection
     CollectionReference entries = FirebaseFirestore.instance.collection('entries');
-    print(
-        " >>>> In ChartScreen Sending widget.user to TimeSeriesLineChart ${widget.user} ");
+
     return MaterialApp(
-        home: Scaffold(
-      appBar: AppBar(
-        title: Text('$_currentLocation - Single Use Plastics Tracker',
-            //overflow: ,
-            style: const TextStyle(fontSize: 16)),
-        leading: IconButton(
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('$locationName - Single Use Plastics Tracker',
+              //overflow: ,
+              style: const TextStyle(fontSize: 16)),
+          leading: IconButton(
             icon: const Icon(Icons.arrow_back),
-            // ChatGPT on the Error
-            // you can try using Navigator.pushReplacement() instead of Navigator.push()
-            onPressed: () =>
-                //Navigator.pop(context),
-
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(
-                    // builder: (context) => LoginScreen(),
-                    builder: (context) => HomeScreen(
-                      user: widget.user,
-                    ),
-                  ),
-                )),
-      ),
-
-      body: Center(
-          child: Column(
-        children: [
-          TextField(
-            controller: quantity,
-            decoration: const InputDecoration(
-                hintText: "Enter the number of single use plastic items this week"),
-            inputFormatters: [
-              // ChatGPT code to restrict data entry to numbers only
-              IntegerInputFormatter()
-            ],
+            onPressed: () => Navigator.pop(context),
           ),
+        ),
+        body: Center(
+          child: Column(children: [
+            TextField(
+              controller: quantity,
+              decoration: const InputDecoration(
+                  hintText: "Enter the number of single use plastic items this week"),
+              inputFormatters: [
+                // ChatGPT code to restrict data entry to numbers only
+                IntegerInputFormatter()
+              ],
+            ),
 
 // ============ insert the line chart here instead of ListView
 
-          Expanded(child: TimeSeriesLineChart(user: widget.user)
-
-              //  chartKey: chartKey,
-              //currentUserEmail: userEmail,
-              // currentUserEmail: _currentUserEmail.toString(), user: null,
+            Expanded(
+              child: TimeSeriesLineChart(
+                user: widget.user,
+                //  chartKey: chartKey,
+                //currentUserEmail: userEmail,
               ),
-        ],
-      )
+            )
 
-          // trigger chart redraw
-          //chartKey.currentState?.updateChart();
-          //===============
-          /* // ToDo: Put this code list in a tab with the chart
+            // trigger chart redraw
+            //chartKey.currentState?.updateChart();
+            //===============
+            /* // ToDo: Put this code list in a tab with the chart
             //ToDo Expanded widget needed to only expand to available space & avoid ZEBRA yellow crossing
             Expanded(
               child: StreamBuilder(
@@ -216,44 +193,46 @@ class ChartScreenState extends State<ChartScreen> {
             ),
 
     */ // replace ListView with Chart
-          ),
+          ]),
+        ),
 
-      // FAB to submit plastic quantity
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.add),
-        onPressed: () {
-          entries.add({
-            // ToDo use seconds since EPOCH or maybe week number & year
-            //'logDate': DateTime.now(),
-            'logDate': Timestamp.fromDate(DateTime.now()),
-            // added year number and week number to database
-            'yearNumber': yearNumber,
-            'weekNumber': weekNumber,
-            //weekNumber
-            // Todo locationID  Do Dropdown Select
-            'locationID': _currentLocation,
-            'quantity': int.parse(quantity.text), // parse converts Text input to int
-            'userID': _currentUserEmail,
-          });
+        // FAB to submit plastic quantity
+        floatingActionButton: FloatingActionButton(
+          child: const Icon(Icons.add),
+          onPressed: () {
+            entries.add({
+              // ToDo use seconds since EPOCH or maybe week number & year
+              //'logDate': DateTime.now(),
+              'logDate': Timestamp.fromDate(DateTime.now()),
+              // added year number and week number to database
+              'yearNumber': yearNumber,
+              'weekNumber': weekNumber,
+              //weekNumber
+              // Todo locationID  Do Dropdown Select
+              'locationID': locationName,
+              'quantity': int.parse(quantity.text), // parse converts Text input to int
+              'userID': userEmail,
+            });
 
-          // to redraw chart after data entry
-          // Call this method whenever data is entered to update the chart
-          // fail  _chartKey.currentState?.updateData();
+            // to redraw chart after data entry
+            // Call this method whenever data is entered to update the chart
+            // fail  _chartKey.currentState?.updateData();
 
-          quantity.clear();
-          // locationTextController.clear();
-          // dateTextController.clear();
-          // userTextController.clear();
+            quantity.clear();
+            // locationTextController.clear();
+            // dateTextController.clear();
+            // userTextController.clear();
 
-          setState(() {
-            // TimeSeriesLineChart._getDataPoints();
-          });
+            setState(() {
+              // TimeSeriesLineChart._getDataPoints();
+            });
 
-          // ChatGPT code Call the updateData() method to redraw the chart
-          // _chartKey.currentState?.updateData();  // fail
-        },
+            // ChatGPT code Call the updateData() method to redraw the chart
+            // _chartKey.currentState?.updateData();  // fail
+          },
+        ),
       ),
-    ));
+    );
   }
 }
 

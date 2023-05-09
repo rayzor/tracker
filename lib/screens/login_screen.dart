@@ -1,20 +1,27 @@
-// login screen from Firebase_authentication on github
-//
+// login screen: Tracker App
+// Firebase_authentication on github
+// login with email & password
+// get location from user collection called displayName.
+// Put locationName in displayName in user collection on SignUP
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:tracker/screens/chart_screen.dart';
 import 'package:tracker/screens/signup_screen.dart';
 
 import '../helpers/auth_helpers.dart';
 import '../helpers/validator_helpers.dart';
+import 'home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
+  static const routeName = "/login";
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  User? user;
+
   final _formKey = GlobalKey<FormState>();
 
   final _emailTextController = TextEditingController();
@@ -25,10 +32,18 @@ class _LoginScreenState extends State<LoginScreen> {
 
   bool _isProcessing = false;
 
+  @override
+  void initState() {
+    super.initState();
+    _initializeFirebase();
+  }
+
   Future<FirebaseApp> _initializeFirebase() async {
     FirebaseApp firebaseApp = await Firebase.initializeApp();
 
     User? user = FirebaseAuth.instance.currentUser;
+    print(">>> Login Init  current user is $user");
+    print(">>> Login Init Firebase location (displayName) is ${user?.displayName}  ");
 
     // if user returned from Firebase then Navigate to HomeScreen or Login or first page you want User to go to.
     /*  if (user != null) {
@@ -89,8 +104,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               decoration: const BoxDecoration(
                                 image: DecorationImage(
                                   image:
-                                      //  AssetImage('assets/images/flying-dandelions.png'),
-                                      AssetImage('assets/images/boy_sea.jpg'),
+                                      AssetImage('assets/images/flying-dandelions.png'),
+                                  // AssetImage('assets/images/boy_sea.jpg'),
                                 ),
                               ),
                             ),
@@ -280,17 +295,35 @@ class _LoginScreenState extends State<LoginScreen> {
                                                   email: _emailTextController.text,
                                                   password: _passwordTextController.text,
                                                 );
-
+                                                print(
+                                                    ">>> Login wait for user after onPress $user");
                                                 setState(() {
                                                   _isProcessing = false;
                                                 });
+
+                                                // ToDo Test prints to get from User in firebase the location name ToDo ...del on final
+                                                print("In LoginScreen $user    ");
+                                                print(
+                                                    "In LoginScreen user.email is ${user?.email.toString()}    ");
+                                                print(
+                                                    "In LoginScreen user.displayName is ${user?.displayName}    ");
+                                                print(
+                                                    "In LoginScreen user.providerData is ${user?.providerData}    ");
+
+                                                // to extract the email and location from user providerData
+                                                //String email = firebaseData.providerData[0].email;
+
+                                                // Here, providerData is an array containing UserInfo objects,
+                                                // so we access the first element [0] of that array
+                                                // and then access the email property of that UserInfo object.
+                                                // This should give you the email value "test0@test.com" in this case.
 
                                                 if (user != null) {
                                                   Navigator.of(context).pushReplacement(
                                                     MaterialPageRoute(
                                                       builder: (context) =>
-                                                          //    HomeScreen(user: user),
-                                                          ChartScreen(user: user),
+                                                          HomeScreen(user: user),
+                                                      //ChartScreen(user: user),
                                                       // ChartScreen(currentUserEmail: user.email.toString()),
                                                     ),
                                                   );
@@ -321,6 +354,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   onPressed: () {
                                     Navigator.of(context).push(
                                       MaterialPageRoute(
+                                        //Todo navigate to new ForgotPasswordScreen
                                         builder: (context) => SignUpScreen(),
                                       ),
                                     );

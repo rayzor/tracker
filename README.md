@@ -6,16 +6,15 @@ It has 3 parts: Login/Authentication + data entry + chart.
 
 Based on Tommy's videos at https://learnflutterwithme.com/
 
-Database is Google Cloud Firestore.
-Collection is called 'entries'
-A document record is created for each user entry
-The fields in the document are locationID, logDate, quantity, userID
-The Chart aggregates the Community Entries per week and charts progress.
-The Chart also shows the individual user usage trends.
+- Database is Google Cloud Firestore.
+- Collection is called 'entries'
+- A document record is created for each user entry
+- The fields in the document are locationID, logDate, quantity, userID
+- The charting feature aggregates community entries on a weekly basis and charts the overall progress in reducing single-use plastic usage. 
+- It also provides insight into individual user trends. 
+- During the trial period, the app will be limited to 10 communities.
 
-Communities will be limited in the trial to 10 communities.
-
-ChatGPT assist code used - no errors.
+The ChatGPT assist code was utilized and there were no errors encountered.
 
 ===== Getting Started with Flutter
 

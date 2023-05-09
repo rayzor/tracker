@@ -26,7 +26,11 @@ class Validator {
     //null test is used to detect the absence of a value, while empty is used to check for an empty collection.
     if (password == null || password.isEmpty) return 'Password is required.';
 
-    String pattern = r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$';
+    // 8 Chrs, Capital, Symbol, lower.
+    //String pattern = r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$';
+
+    //a regex pattern for a password with just 8 characters consisting of letters or numbers:
+    String pattern = r'^[a-zA-Z0-9]{8}$';
 
     RegExp regex = RegExp(pattern);
     if (!regex.hasMatch(password)) {

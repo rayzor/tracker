@@ -1,13 +1,14 @@
-// line_chart. Builds the 2 line chart of location trend and user trend
+// tracker: line_chart. Builds the 2 line chart of location trend and user trend
 // ChatGPT code assist
 import 'package:charts_flutter_new/flutter.dart' as charts; // use tag charts
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 // Define a temp class Entry to save the query entries from Firebase in memory.
 class Entry {
   final String locationID;
-  final String userID; // Bug .. forgot to put userID in the Temp list!
+  final String userID;
   final int quantity;
   final int yearNumber;
   final int weekNumber;
@@ -31,13 +32,21 @@ class DataPoint {
 
 // chart
 class TimeSeriesLineChart extends StatefulWidget {
+  User user;
+
   //final Key chartKey; // to provide a key called from dataentry to redraw chart every time data is entered.
   //final chartKey = GlobalKey<_TimeSeriesLineChartState>(); // ChatGPT suggested code
-  final String currentUserEmail; // passed from the Navigator in main/login
-  const TimeSeriesLineChart(
+  //final String currentUserEmail; // passed from the Navigator in main/login
+
+  // final User user; // full user fields forwarded from login
+  // TimeSeriesLineChart({required this.user});
+
+  TimeSeriesLineChart(
       {Key? key,
       // required this.chartKey,
-      required this.currentUserEmail})
+      //  required user: user})
+      // required this.currentUserEmail})
+      required this.user})
       : super(key: key);
 
   @override
@@ -45,8 +54,6 @@ class TimeSeriesLineChart extends StatefulWidget {
 }
 
 class TimeSeriesLineChartState extends State<TimeSeriesLineChart> {
-  String? locationID; // local variable to hold the location name we get from Firebase
-
   List<DataPoint> dataPointsLocation = []; // empty array for loc data from firestore
   List<DataPoint> dataPointsUser = []; // empty array for the data from firestore
 
@@ -57,24 +64,29 @@ class TimeSeriesLineChartState extends State<TimeSeriesLineChart> {
   }
 
   Future<void> _initialize() async {
-    String? locationID = await _getUserLocation(widget.currentUserEmail);
-    setState(() {
-      locationID = locationID;
-    });
-    _getLocationDataPoints(
-        locationID); // call get data from firestore for this user locationID.
+    //  String? locationID = await _getUserLocation(widget.currentUserEmail);
+    //  setState(() {
+    //    locationID = locationID;
+    //  });
+    // String? currentLocation = widget.user.displayName; // local variable to hold the location name we get from Firebase
+    // String? currentUserEmail = widget.user.displayName;
 
-    _getUserDataPoints(
-        locationID,
-        widget
-            .currentUserEmail); // call get data from firestore for this user locationID.
+    _getLocationDataPoints(
+        // currentlocation
+        widget.user.displayName); // get this user full location data from firestore.
+
+    _getUserDataPoints(widget.user.displayName,
+        widget.user.email); // get this user ONLY data from firestore.
   }
 
   // ChatGPTcode
 // This Future function gets the user location from the locations collection by select email
 // We will use this to select ALL the other Glanmire records in the collection to chart them
+
+  // to do Delete no longer reqd because we have user location from signup in users Firestore file as "displayName"
   Future<String?> _getUserLocation(String currentUserEmail) async {
 // Get a reference to the locations collection in tracker db on Firestore London
+    // no longer required: Location s now recorded in the Auth User data as displayName.
     CollectionReference<Map<String, dynamic>> locations =
         await FirebaseFirestore.instance.collection('locations');
 
@@ -102,6 +114,9 @@ class TimeSeriesLineChartState extends State<TimeSeriesLineChart> {
   }
 
   _getLocationDataPoints(locationID) async {
+    print("In Chart Helper getLocationDataPoints locationID is ... $locationID");
+    print("Type of locationID is ${locationID.runtimeType}");
+
     QuerySnapshot<Map<String, dynamic>> snapshot =
         await FirebaseFirestore.instance //wakeup Firebase
             .collection('entries')
@@ -112,7 +127,7 @@ class TimeSeriesLineChartState extends State<TimeSeriesLineChart> {
 
     Map<String, List<Entry>> groupedEntries = {}; //empty Map with {}
 // group the entries by year/weekNo for easy use by chart timeline.
-    snapshot.docs.forEach((doc) {
+    for (var doc in snapshot.docs) {
       Entry entry = Entry(
         locationID: doc['locationID'],
         userID: doc['userID'],
@@ -126,7 +141,7 @@ class TimeSeriesLineChartState extends State<TimeSeriesLineChart> {
       } else {
         groupedEntries[key]!.add(entry);
       }
-    });
+    }
 
     List<DataPoint> dataPoints = []; //empty List based on class DataPoint as def above
     // to group the entries by week
@@ -143,6 +158,10 @@ class TimeSeriesLineChartState extends State<TimeSeriesLineChart> {
         int averageQuantity = (totalQuantity / kount).floor(); // average
         DataPoint dataPoint = DataPoint(yearNumber, weekNumber, averageQuantity);
         dataPoints.add(dataPoint);
+//todo del on final
+        print("In Chart Helpers locationID is ... $locationID");
+        print(
+            "In Chart Helpers YearNum weekNumber normalizedValue = $yearNumber - $weekNumber - $totalQuantity");
       },
     );
     setState(() {
@@ -165,7 +184,7 @@ class TimeSeriesLineChartState extends State<TimeSeriesLineChart> {
 
     // Group the data points by week to sum by week - user will usually only have 1 entry er week
     Map<String, List<Entry>> groupedEntries = {}; //empty Map with {}
-    snapshot.docs.forEach((doc) {
+    for (var doc in snapshot.docs) {
       Entry entry = Entry(
         locationID: doc['locationID'],
         userID: doc['userID'],
@@ -180,7 +199,7 @@ class TimeSeriesLineChartState extends State<TimeSeriesLineChart> {
       } else {
         groupedEntries[key]!.add(entry);
       }
-    });
+    }
 
     List<DataPoint> dataPoints2 = []; //empty List based on class DataPoint as def above
     // to group the entries by week
@@ -214,7 +233,7 @@ class TimeSeriesLineChartState extends State<TimeSeriesLineChart> {
     List<charts.Series<DataPoint, DateTime>> seriesList = [
       //First chart line here - Location trend line
       charts.Series<DataPoint, DateTime>(
-        id: 'Location Trend', //  id: '$locationID Trend', //FAIL
+        id: '${widget.user.displayName}', //  id: '$locationID Trend', //FAIL
         colorFn: (_, __) => charts.MaterialPalette.deepOrange.shadeDefault,
         // ChatGPT very smart to calc date for the x-axis from Jan1 plus weekNumber-1/7 // ChatGPT
         domainFn: (DataPoint dataPoint, _) => DateTime(dataPoint.yearNumber, 1, 1)
@@ -224,7 +243,7 @@ class TimeSeriesLineChartState extends State<TimeSeriesLineChart> {
       ),
       //put second User line chart data here
       charts.Series<DataPoint, DateTime>(
-        id: 'User Trend',
+        id: 'User',
         colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
         // ChatGPT very smart to calc date for the x-axis from Jan1 plus weekNumber-1/7 // ChatGPT
         domainFn: (DataPoint dataPoint, _) => DateTime(dataPoint.yearNumber, 1, 1)
