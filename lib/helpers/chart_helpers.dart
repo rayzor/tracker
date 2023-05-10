@@ -30,7 +30,7 @@ class DataPoint {
   DataPoint(this.yearNumber, this.weekNumber, this.averageQuantity);
 }
 
-// chart
+// chart : this is the chart code for charts_flutter package.
 class TimeSeriesLineChart extends StatefulWidget {
   User user;
 
@@ -41,13 +41,7 @@ class TimeSeriesLineChart extends StatefulWidget {
   // final User user; // full user fields forwarded from login
   // TimeSeriesLineChart({required this.user});
 
-  TimeSeriesLineChart(
-      {Key? key,
-      // required this.chartKey,
-      //  required user: user})
-      // required this.currentUserEmail})
-      required this.user})
-      : super(key: key);
+  TimeSeriesLineChart({Key? key, required this.user}) : super(key: key);
 
   @override
   TimeSeriesLineChartState createState() => TimeSeriesLineChartState();
@@ -64,45 +58,12 @@ class TimeSeriesLineChartState extends State<TimeSeriesLineChart> {
   }
 
   Future<void> _initialize() async {
-    //  String? locationID = await _getUserLocation(widget.currentUserEmail);
-    //  setState(() {
-    //    locationID = locationID;
-    //  });
-    // String? currentLocation = widget.user.displayName; // local variable to hold the location name we get from Firebase
-    // String? currentUserEmail = widget.user.displayName;
-
     _getLocationDataPoints(
         // currentlocation
-        widget.user.displayName); // get this user full location data from firestore.
+        widget.user.displayName); // get full location data for this user from firestore.
 
     _getUserDataPoints(widget.user.displayName,
         widget.user.email); // get this user ONLY data from firestore.
-  }
-
-  // ChatGPTcode
-// This Future function gets the user location from the locations collection by select email
-// We will use this to select ALL the other Glanmire records in the collection to chart them
-
-  // to do Delete no longer reqd because we have user location from signup in users Firestore file as "displayName"
-  Future<String?> _getUserLocation(String currentUserEmail) async {
-// Get a reference to the locations collection in tracker db on Firestore London
-    // no longer required: Location s now recorded in the Auth User data as displayName.
-    CollectionReference<Map<String, dynamic>> locations =
-        await FirebaseFirestore.instance.collection('locations');
-
-// Use a query to find the first document that matches the currentUserEmail
-    QuerySnapshot<Map<String, dynamic>> querySnapshot =
-        await locations.where('userEmail', isEqualTo: currentUserEmail).limit(1).get();
-
-// Check if any documents were returned by the query
-    if (querySnapshot.docs.isNotEmpty) {
-      final DocumentSnapshot<Map<String, dynamic>> docSnapshot = querySnapshot.docs.first;
-      final String? locationID = docSnapshot.data()!['locationName'] as String?;
-
-      setState(() {});
-      return locationID;
-    }
-    return null; // test for null by receiver and gracefully let user know. NoCrash
   }
 
 // to trigger chart update ChatGPT
@@ -113,6 +74,7 @@ class TimeSeriesLineChartState extends State<TimeSeriesLineChart> {
     });
   }
 
+  // ChatGPT code works.
   _getLocationDataPoints(locationID) async {
     print("In Chart Helper getLocationDataPoints locationID is ... $locationID");
     print("Type of locationID is ${locationID.runtimeType}");
@@ -121,7 +83,6 @@ class TimeSeriesLineChartState extends State<TimeSeriesLineChart> {
         await FirebaseFirestore.instance //wakeup Firebase
             .collection('entries')
             .where('locationID', isEqualTo: locationID)
-            //Todo remove this rem to use date order. Remmed for test only
             .orderBy('logDate', descending: false) // order by date in ascending order
             .get();
 
@@ -144,7 +105,7 @@ class TimeSeriesLineChartState extends State<TimeSeriesLineChart> {
     }
 
     List<DataPoint> dataPoints = []; //empty List based on class DataPoint as def above
-    // to group the entries by week
+    // to group the entries by week to get Totals per week for all location users, number of entries and Average
     groupedEntries.forEach(
       (key, value) {
         List<String> parts = key.split('-');
@@ -165,12 +126,11 @@ class TimeSeriesLineChartState extends State<TimeSeriesLineChart> {
       },
     );
     setState(() {
-      dataPointsLocation =
-          dataPoints; // we now have the Location data points for the chart
+      dataPointsLocation = dataPoints; // use for the Location data points for the chart
     });
   } // end get
 
-  // PART 2 - get USer data points - clone loc chart to get User chart line
+  // PART 2 - get User data points - clone loc chart code to get User chart line
 
   // ChatGPT ... good tip -  use locationID and UserID to get the specific User chart data points
   _getUserDataPoints(locationID, userID) async {
@@ -220,11 +180,11 @@ class TimeSeriesLineChartState extends State<TimeSeriesLineChart> {
       },
     );
     setState(() {
-      dataPointsUser = dataPoints2;
+      dataPointsUser = dataPoints2; // used for user Chart
     });
   }
 
-  // Build the screen here
+  // Build the chart screen here
   @override
   Widget build(BuildContext context) {
     // the X-axis of the chart is domainFn of dates
@@ -252,33 +212,33 @@ class TimeSeriesLineChartState extends State<TimeSeriesLineChart> {
         data: dataPointsUser,
       ),
     ];
-    // print("data points Location $dataPointsLocation");
-    //  print("data points User $dataPointsUser");
-    // here we have the 2 chart lines dataPoints ..brill So then create Series
+
+    // here we have the 2 chart lines dataPoints ..brill so then create Series
     return Container(
       color: Colors.white, // required because defaults to terrible DARK mode.
       height: 400,
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
 
       child: dataPointsLocation.isNotEmpty
           ? charts.TimeSeriesChart(
               seriesList,
               animate: true,
-              animationDuration: Duration(seconds: 1),
+              animationDuration: const Duration(seconds: 1),
               // Todo new added to show points in line chart line
-              defaultRenderer: new charts.LineRendererConfig(includePoints: true),
+              defaultRenderer: charts.LineRendererConfig(includePoints: true),
               // chart animation 1sec
               dateTimeFactory: const charts.LocalDateTimeFactory(),
-              primaryMeasureAxis: charts.NumericAxisSpec(
+              primaryMeasureAxis: const charts.NumericAxisSpec(
                 tickProviderSpec: charts.BasicNumericTickProviderSpec(zeroBound: false),
               ),
               behaviors: [
-                new charts.SeriesLegend(
+                charts.SeriesLegend(
                     horizontalFirst: true, // true = across false for line after line
                     showMeasures:
                         true, // shows values after Legends whn dots ar selected .. nice
-                    cellPadding: new EdgeInsets.only(top: 20.0, right: 4.0, bottom: 4.0),
-                    entryTextStyle: charts.TextStyleSpec(
+                    cellPadding:
+                        const EdgeInsets.only(top: 20.0, right: 4.0, bottom: 4.0),
+                    entryTextStyle: const charts.TextStyleSpec(
                         // color: charts.Color(r: 127, g: 63, b: 191),
                         color: charts.Color(r: 0, g: 0, b: 129),
                         fontFamily: 'Georgia',
@@ -307,7 +267,7 @@ class TimeSeriesLineChartState extends State<TimeSeriesLineChart> {
                         charts.OutsideJustification.middleDrawArea),
               ],
             )
-          : Center(child: CircularProgressIndicator()),
+          : const Center(child: CircularProgressIndicator()),
     );
   }
 } // END TOTAL

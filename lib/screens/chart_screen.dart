@@ -1,4 +1,4 @@
-// tracker 27 - PreTabs :
+// tracker :  Chart Screen
 
 // Note: ? means it is OK to be null but caution as it could crash your code
 // Note: ! is the "assert symbol" saying I guarantee not null
@@ -15,16 +15,6 @@ import 'home_screen.dart';
 class ChartScreen extends StatefulWidget {
   final User user; // full user fields forwarded from login
   ChartScreen({required this.user});
-  //final GlobalKey<_TimeSeriesLineChartState> chartKey = GlobalKey(); //Error
-
-  // Declare a field that holds the currentUserEmail from Navigator pushed from login
-  // final User user;
-  //    LoginScreen({required this.user});
-
-  //const ChartScreen( {Key? key,
-  //    // required this.chartKey,
-  //    required this.currentUserEmail})
-  //   : super(key: key);
 
   @override
   ChartScreenState createState() => ChartScreenState();
@@ -46,8 +36,8 @@ class ChartScreenState extends State<ChartScreen> {
   // }
   //=========================
 
-  final quantity =
-      TextEditingController(); // used to input data .. number of plastic items
+  // final quantity =
+  //   TextEditingController(); // used to input data .. number of plastic items
   //int quantityLimit = 50; // limit users to this quantity inputted to stop messers entering 10,000
 
   // ToDo rayDevOnly final String location = "Glanmire"; // pick up the user location later from dropdown
@@ -123,32 +113,31 @@ class ChartScreenState extends State<ChartScreen> {
     print(
         " >>>> In ChartScreen Sending widget.user to TimeSeriesLineChart ${widget.user} ");
     return MaterialApp(
-        home: Scaffold(
-      appBar: AppBar(
-        title: Text('$_currentLocation - Single Use Plastics Tracker',
-            //overflow: ,
-            style: const TextStyle(fontSize: 16)),
-        leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            // ChatGPT on the Error
-            // you can try using Navigator.pushReplacement() instead of Navigator.push()
-            onPressed: () =>
-                //Navigator.pop(context),
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('$_currentLocation - Single Use Plastics Tracker',
+              //overflow: ,
+              style: const TextStyle(fontSize: 16)),
+          leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              // ChatGPT on the Error
+              // you can try using Navigator.pushReplacement() instead of Navigator.push()
+              onPressed: () =>
+                  //Navigator.pop(context),
 
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(
-                    // builder: (context) => LoginScreen(),
-                    builder: (context) => HomeScreen(
-                      user: widget.user,
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      // builder: (context) => LoginScreen(),
+                      builder: (context) => HomeScreen(
+                        user: widget.user,
+                      ),
                     ),
-                  ),
-                )),
-      ),
-
-      body: Center(
-          child: Column(
-        children: [
-          TextField(
+                  )),
+        ),
+        body: Center(
+            child: Column(
+          children: [
+            /*         TextField(
             controller: quantity,
             decoration: const InputDecoration(
                 hintText: "Enter the number of single use plastic items this week"),
@@ -156,23 +145,23 @@ class ChartScreenState extends State<ChartScreen> {
               // ChatGPT code to restrict data entry to numbers only
               IntegerInputFormatter()
             ],
-          ),
+          ),*/
 
 // ============ insert the line chart here instead of ListView
 
-          Expanded(child: TimeSeriesLineChart(user: widget.user)
+            Expanded(child: TimeSeriesLineChart(user: widget.user)
 
-              //  chartKey: chartKey,
-              //currentUserEmail: userEmail,
-              // currentUserEmail: _currentUserEmail.toString(), user: null,
-              ),
-        ],
-      )
+                //  chartKey: chartKey,
+                //currentUserEmail: userEmail,
+                // currentUserEmail: _currentUserEmail.toString(), user: null,
+                ),
+          ],
+        )
 
-          // trigger chart redraw
-          //chartKey.currentState?.updateChart();
-          //===============
-          /* // ToDo: Put this code list in a tab with the chart
+            // trigger chart redraw
+            //chartKey.currentState?.updateChart();
+            //===============
+            /* // ToDo: Put this code list in a tab with the chart
             //ToDo Expanded widget needed to only expand to available space & avoid ZEBRA yellow crossing
             Expanded(
               child: StreamBuilder(
@@ -216,9 +205,9 @@ class ChartScreenState extends State<ChartScreen> {
             ),
 
     */ // replace ListView with Chart
-          ),
+            ),
 
-      // FAB to submit plastic quantity
+        /*     // FAB to submit plastic quantity
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
         onPressed: () {
@@ -252,8 +241,9 @@ class ChartScreenState extends State<ChartScreen> {
           // ChatGPT code Call the updateData() method to redraw the chart
           // _chartKey.currentState?.updateData();  // fail
         },
+      ),*/
       ),
-    ));
+    );
   }
 }
 

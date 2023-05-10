@@ -1,9 +1,13 @@
 // tracker: main.dart : Glanmire Coder Dojo Club - Apr 2023.
+//
 // A Flutter app to report trends in Single Use Plastics usage in Communities.
 // This App is opensource code and can be used by any communities to track their SUP usage.
 // They can download this app code from Github and setup a Firebase database for their Community or Communities.
-// In Firebase enter the Community names which can participate in the 'locations' collection.
-//
+// In Firebase enter the Community names which can participate in the 'locations' collection in a document (field) called locationName.
+// In Firebase enter the weekly quantities in collection "entries" with the following document(fields)
+// locationID (String), logDate(TimeDate), quantity(number) userID(String), weekNumber(number), yearNumber(number)
+// RN/DM
+
 // main.dart
 //
 import 'package:firebase_auth/firebase_auth.dart';
@@ -17,9 +21,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   // todo test only remove later
-  // Check if Firebase has been initialized
-  //assert(Firebase.apps.isNotEmpty);
-  //print(">>> In Main  user is ${Firebase.app()}");
   runApp(MyApp());
 }
 
@@ -31,7 +32,6 @@ class MyApp extends StatelessWidget {
     '/home': (BuildContext context) {
       final user = FirebaseAuth
           .instance.currentUser!; // ! indicates we are certain user is not null???
-      // return HomeScreen(user: user);
       return HomeScreen(user: user);
     },
     // '/chart': (BuildContext context) => ChartScreen( user: null,  ),
@@ -67,7 +67,6 @@ class MyApp extends StatelessWidget {
       home: LoginScreen(), // start at Login Screen
 
       //routes
-
       initialRoute: '/login',
       routes: routes,
     );

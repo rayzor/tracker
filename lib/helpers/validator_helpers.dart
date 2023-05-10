@@ -1,20 +1,21 @@
 // validation helpers.
-// this file contains helper methods which are called from the main screens
+// this file contains helper methods which are called from the login and signin screens
 // it is convenient to separate these methods into separate files to reduce the clutter in the main screens
-// these helper methods are used to validate name, email, password
-// Also to limit the quantity entered by the user. It is set at 50 bottles of plastic ToDo put in Params file
+// these helper methods are used to validate email, password and number entered in the quantity field.
+// Also to limit the quantity entered by the user.
+// Quantity is set at 50 bottles of plastic ToDo put in a Params file.. maybe on firestore so it can be managed.
 
 import 'package:flutter/services.dart';
 
 class Validator {
 // Email validation pattern helper method
 // Validation Step4 video and code steps https://learnflutterwithme.com/firebase-auth-validation
-  //static String? validateEmail({required String? email}) {
+
   static String? validateEmail({String? email}) {
     //null test is used to detect the absence of a value, while empty is used to check for an empty collection.
     if (email == null || email.isEmpty) return 'E-mail address is required.';
 
-    String pattern = r'\w+@\w+\.\w+';
+    String pattern = r'\w+@\w+\.\w+'; // word @ word . word.
     RegExp regex = RegExp(pattern);
     if (!regex.hasMatch(email)) return 'Invalid E-mail address format.';
 
@@ -29,22 +30,24 @@ class Validator {
     // 8 Chrs, Capital, Symbol, lower.
     //String pattern = r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$';
 
-    //a regex pattern for a password with just 8 characters consisting of letters or numbers:
+    //A regex pattern for a password with just 8 characters consisting of letters or numbers:
     String pattern = r'^[a-zA-Z0-9]{8}$';
 
     RegExp regex = RegExp(pattern);
     if (!regex.hasMatch(password)) {
       return '''
       Password must be at least 8 characters,
-      include an uppercase letter, number and symbol.
+     
       ''';
+
+      //  include an uppercase letter, number and symbol.
     }
 
     return null;
   }
-} // END VALIDATOR
+} // END class VALIDATOR
 
-// Data Entry formatter helper method : allows numbers only
+// Data Entry formatter helper method : allows numbers only input in Quantity field
 // Chat GPT suggestion - good code. prevents text entry OR edit - numbers only allowed.
 class IntegerInputFormatter extends TextInputFormatter {
   // ToDo Data Entry limit of 50 items of SUPs ToDo extract to Parameter file
@@ -74,7 +77,6 @@ class IntegerInputFormatter extends TextInputFormatter {
 }
 
 //================ Todo duplicate methods delete on final
-
 /*
 // Validator Class:
 class Validator {
