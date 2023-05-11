@@ -7,10 +7,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart'; //for all screen widgets, scaffold appbar etc
 import 'package:flutter/services.dart';
+import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:intl/intl.dart';
 
 import '../helpers/chart_helpers.dart';
 import 'home_screen.dart';
+import 'info_screen.dart';
+import 'list_view_screen.dart';
 
 class ChartScreen extends StatefulWidget {
   final User user; // full user fields forwarded from login
@@ -21,6 +24,7 @@ class ChartScreen extends StatefulWidget {
 }
 
 class ChartScreenState extends State<ChartScreen> {
+  int _selectedIndex = 1; // for bottomNav Tabs
   // late User _currentUser;
 
   late User _currentUser;
@@ -115,7 +119,8 @@ class ChartScreenState extends State<ChartScreen> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: Text('$_currentLocation - Single Use Plastics Tracker',
+          //title: Text('$_currentLocation - Single Use Plastics Tracker',
+          title: Text('Single Use Plastics Tracker',
               //overflow: ,
               style: const TextStyle(fontSize: 16)),
           leading: IconButton(
@@ -242,6 +247,81 @@ class ChartScreenState extends State<ChartScreen> {
           // _chartKey.currentState?.updateData();  // fail
         },
       ),*/
+
+        // bottom Nav Tabs
+        bottomNavigationBar: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: GNav(
+            gap: 8,
+            activeColor: Colors.white,
+            iconSize: 26,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+            duration: const Duration(milliseconds: 800),
+            tabBackgroundColor: Colors.blue,
+            tabs: const [
+              GButton(
+                icon: Icons.home,
+                text: 'Home',
+                backgroundColor: Colors.blue,
+              ),
+              GButton(
+                icon: Icons.insert_chart,
+                text: 'Charts',
+                backgroundColor: Colors.purple,
+              ),
+              GButton(
+                icon: Icons.list_alt,
+                text: 'Lists',
+                backgroundColor: Colors.blue,
+              ),
+              GButton(
+                icon: Icons.info,
+                text: 'Info',
+                backgroundColor: Colors.red,
+              ),
+            ],
+            selectedIndex: _selectedIndex,
+            onTabChange: (index) {
+              switch (index) {
+                case 0:
+                  // navigate to HomeScreen
+                  break;
+                case 1:
+                  // navigate to data entry in ChartScreen : put Data Entry function in Home Screen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ChartScreen(user: widget.user),
+                    ),
+                  );
+                  break;
+                case 2:
+                  // navigate to Charts
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ListViewScreen(user: widget.user),
+                    ),
+                  );
+                  break;
+                case 3:
+                  // navigate to InfoScreen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => InfoScreen(user: widget.user),
+                    ),
+                  );
+                  break;
+              }
+              setState(() {
+                _selectedIndex = index;
+              });
+            },
+          ),
+        ),
+
+        // bottom Nav Tabs
       ),
     );
   }

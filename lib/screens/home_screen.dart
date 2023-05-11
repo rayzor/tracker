@@ -8,8 +8,8 @@ import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:intl/intl.dart';
 
 import 'chart_screen.dart';
-import 'data_entry.dart';
 import 'info_screen.dart';
+import 'list_view_screen.dart';
 import 'login_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -71,7 +71,7 @@ class HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
           title: const Text(
-            'Single Use Plastics - Tracker',
+            'Single Use Plastics Tracker',
             style: TextStyle(fontSize: 16),
           ),
           actions: [
@@ -113,21 +113,49 @@ class HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 20),
             Text('Hi $currentUserEmail'),
-            const Text("You can help to stop the use of Single Use Plastics."),
+            const Text("Help to reduce the use of Single Use Plastics."),
             const Text(
                 "Enter the number of plastic items put in your waste bin this week."),
             const SizedBox(height: 50),
-            const Text("Put Data Entry field here - use a spinner "),
-
+            const Text("ToDo -- Recode for a Spinner for Data Entry"),
+            const SizedBox(height: 50),
             // New: Use Home Screen for Data Input here
-            TextField(
+            /*   TextField(
               controller: quantity,
-              decoration: const InputDecoration(
-                  hintText: "Enter the number of single use plastic items this week"),
+              decoration:
+                  const InputDecoration(hintText: "Single use plastic items this week"),
               inputFormatters: [
                 // ChatGPT code to restrict data entry to numbers only
                 IntegerInputFormatter()
               ],
+            ),*/
+
+            // CGPT code
+            Container(
+              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.5),
+                    spreadRadius: 2,
+                    blurRadius: 5,
+                    offset: Offset(0, 3),
+                  ),
+                ],
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: TextField(
+                controller: quantity,
+                decoration: InputDecoration(
+                  hintText: "Single use plastic items this week",
+                  border: InputBorder.none,
+                ),
+                inputFormatters: [
+                  // ChatGPT code to restrict data entry to numbers only
+                  IntegerInputFormatter(),
+                ],
+              ),
             ),
           ],
         ),
@@ -183,7 +211,7 @@ class HomeScreenState extends State<HomeScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => DataEntry(user: widget.user),
+                    builder: (context) => ListViewScreen(user: widget.user),
                   ),
                 );
                 break;
@@ -228,14 +256,9 @@ class HomeScreenState extends State<HomeScreen> {
           // fail  _chartKey.currentState?.updateData();
 
           quantity.clear();
-          // locationTextController.clear();
-          // dateTextController.clear();
-          // userTextController.clear();
-
           setState(() {
             // TimeSeriesLineChart._getDataPoints();
           });
-
           // ChatGPT code Call the updateData() method to redraw the chart
           // _chartKey.currentState?.updateData();  // fail
         },

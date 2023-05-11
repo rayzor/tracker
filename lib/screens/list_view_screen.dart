@@ -6,26 +6,28 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart'; //for all screen widgets, scaffold appbar etc
-import 'package:flutter/services.dart';
-import 'package:intl/intl.dart'; // for DateFormats
+import 'package:google_nav_bar/google_nav_bar.dart';
+import 'package:intl/intl.dart';
 
-class DataEntry extends StatefulWidget {
+import 'chart_screen.dart';
+import 'info_screen.dart'; // for DateFormats
+
+class ListViewScreen extends StatefulWidget {
   final User user;
 
-  const DataEntry({Key? key, required this.user}) : super(key: key);
+  const ListViewScreen({Key? key, required this.user}) : super(key: key);
 
   @override
-  DataEntryState createState() => DataEntryState();
+  ListViewScreenState createState() => ListViewScreenState();
 }
 
-class DataEntryState extends State<DataEntry> {
-  //final quantity = TextEditingController(); // used to input data .. number of plastic items
-  // ToDo rayDevOnly final String location = "Glanmire"; // pick up the user location later from dropdown
+class ListViewScreenState extends State<ListViewScreen> {
+  int _selectedIndex = 2; // for bottomNav Tabs
+
   final DateTime today = DateTime.now();
   final dateFormatted = DateFormat.yMd().format(DateTime.now());
 // Todo ... decide final Date format style EU or US od location based.
   final myDateFormat = DateFormat('dd-MM-yyyy'); // Irish / British date format
-  //String locationName = "";
 
   //== Chat
   @override
@@ -36,7 +38,7 @@ class DataEntryState extends State<DataEntry> {
   // Build the Screen
   @override
   Widget build(BuildContext context) {
-    // widget keyword is needed to expose currentUserEmail in this build Widget - wierd
+    // widget keyword is needed to access the User attributes in the build Widget - wierd
     String currentUserEmail =
         widget.user.email.toString(); // derives email for user Object passed from Login
 
@@ -95,58 +97,79 @@ class DataEntryState extends State<DataEntry> {
             ),
           ]),
         ),
+        // bottomNav Bar ..extract to separate helper.
+        bottomNavigationBar: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: GNav(
+            gap: 8,
+            activeColor: Colors.white,
+            iconSize: 26,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+            duration: const Duration(milliseconds: 800),
+            tabBackgroundColor: Colors.blue,
+            tabs: const [
+              GButton(
+                icon: Icons.home,
+                text: 'Home',
+                backgroundColor: Colors.blue,
+              ),
+              GButton(
+                icon: Icons.insert_chart,
+                text: 'Charts',
+                backgroundColor: Colors.purple,
+              ),
+              GButton(
+                icon: Icons.list_alt,
+                text: 'Lists',
+                backgroundColor: Colors.blue,
+              ),
+              GButton(
+                icon: Icons.info,
+                text: 'Info',
+                backgroundColor: Colors.red,
+              ),
+            ],
+            selectedIndex: _selectedIndex,
+            onTabChange: (index) {
+              switch (index) {
+                case 0:
+                  // navigate to HomeScreen
+                  break;
+                case 1:
+                  // navigate to data entry in ChartScreen : put Data Entry function in Home Screen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ChartScreen(user: widget.user),
+                    ),
+                  );
+                  break;
+                case 2:
+                  // navigate to Charts
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ListViewScreen(user: widget.user),
+                    ),
+                  );
+                  break;
+                case 3:
+                  // navigate to InfoScreen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => InfoScreen(user: widget.user),
+                    ),
+                  );
+                  break;
+              }
+              setState(() {
+                _selectedIndex = index;
+              });
+            },
+          ),
+        ),
       ),
     );
   }
 }
-
-// Chat GPT suggestion - good code. prevents text entry OR edit - numbers only allowed.
-class IntegerInputFormatter extends TextInputFormatter {
-  @override
-  TextEditingValue formatEditUpdate(
-      TextEditingValue oldValue, TextEditingValue newValue) {
-    // Regular expression that matches only digits
-    final RegExp digitRegex = RegExp(r'\d+');
-
-    // The ?? is the null coalescing operator.
-    // It is used to provide a default value when a variable is null.
-    String newString = digitRegex.stringMatch(newValue.text) ?? ''; //if null assign ''
-    return TextEditingValue(
-      text: newString,
-      selection: TextSelection.collapsed(offset: newString.length),
-    );
-  }
-}
-
-// ChatGPT notes ... delete on final code for release
-// In your TextField widget
-//TextField(
-//inputFormatters: [IntegerInputFormatter()],
-// Other properties...
-//)
-
-// Notes : Date storage in Firebase as per ChatGPT
-// The best way to store dates in Firebase (Firestore) using Flutter
-// is to store them as Timestamp objects.
-// The Timestamp class is part of the Firebase Firestore API
-// and represents a specific point in time with nanosecond precision.
-//
-// Here's an example of how to store a DateTime as a Timestamp in Firebase:
-//
-// FirebaseFirestore.instance.collection("your_collection").add({
-//   "date": Timestamp.fromDate(DateTime.now()),
-// });
-//
-// In this example, DateTime.now() is used to get the current date and time,
-// and Timestamp.fromDate is used to convert it to a Timestamp object that
-// can be stored in Firebase. This Timestamp object can then be retrieved
-// from Firebase and converted back to a DateTime using the .toDate() method.
-
-// Use of Query to get data from Firestore
-//You can use firestore query to return the current user using where()
-// on getDocId():
-
-//await FirebaseFirestore.instance.collection('users').get()
-//change to Todo below to get user trend for chart
-//await FirebaseFirestore.instance.collection('users')
-//.where('Email name', isEqualTo: 'myEmail@mail.test').get()

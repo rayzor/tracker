@@ -1,5 +1,6 @@
-// Copyright 2022, the Chromium project authors.  Please see the AUTHORS file
-// for details. All rights reserved. Use of this source code is governed by a
+// Tracker : ForgotPassword Screen: Copyright 2022, the Chromium project authors.
+// Please see the AUTHORS file for details.
+// All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
 import 'package:firebase_auth/firebase_auth.dart'
@@ -79,53 +80,71 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
     final l = FirebaseUILocalizations.labelsOf(context);
     const spacer = SizedBox(height: 32);
 
-    return Form(
-      key: formKey,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          //  Title(text: l.forgotPasswordViewTitle),
-          if (!emailSent) ...[
-            spacer,
-            widget.subtitleBuilder?.call(context) ?? Text(l.forgotPasswordHintText),
-          ],
-          spacer,
-          if (!emailSent) ...[
-            EmailInput(
-              autofocus: false,
-              controller: emailCtrl,
-              onSubmitted: _submit,
-            ),
-            spacer,
-          ] else ...[
-            Text(l.passwordResetEmailSentText),
-            spacer,
-          ],
-          if (exception != null) ...[
-            const SizedBox(height: 16),
-            ErrorText(exception: exception!),
-            const SizedBox(height: 16),
-          ],
-          if (!emailSent)
-            LoadingButton(
-              isLoading: isLoading,
-              label: l.resetPasswordButtonLabel,
-              onTap: () {
-                if (formKey.currentState!.validate()) {
-                  _submit(emailCtrl.text);
-                }
-              },
-            ),
-          const SizedBox(height: 8),
-          UniversalButton(
-            variant: ButtonVariant.text,
-            text: l.goBackButtonLabel,
-            onPressed: () => Navigator.pop(context),
-          ),
-          if (widget.footerBuilder != null) widget.footerBuilder!(context),
-        ],
+    //= app bar
+    return MaterialApp(
+        home: Scaffold(
+      appBar: AppBar(
+        title: Text('Single Use Plastics Tracker ',
+            //overflow: ,
+            style: const TextStyle(fontSize: 18)),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
-    );
+
+      // app bar
+      body: Center(
+        // return
+        child: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              //  Title(text: l.forgotPasswordViewTitle),
+              if (!emailSent) ...[
+                spacer,
+                widget.subtitleBuilder?.call(context) ?? Text(l.forgotPasswordHintText),
+              ],
+              spacer,
+              if (!emailSent) ...[
+                EmailInput(
+                  autofocus: false,
+                  controller: emailCtrl,
+                  onSubmitted: _submit,
+                ),
+                spacer,
+              ] else ...[
+                Text(l.passwordResetEmailSentText),
+                spacer,
+              ],
+              if (exception != null) ...[
+                const SizedBox(height: 16),
+                ErrorText(exception: exception!),
+                const SizedBox(height: 16),
+              ],
+              if (!emailSent)
+                LoadingButton(
+                  isLoading: isLoading,
+                  label: l.resetPasswordButtonLabel,
+                  onTap: () {
+                    if (formKey.currentState!.validate()) {
+                      _submit(emailCtrl.text);
+                    }
+                  },
+                ),
+              const SizedBox(height: 8),
+              UniversalButton(
+                variant: ButtonVariant.text,
+                text: l.goBackButtonLabel,
+                onPressed: () => Navigator.pop(context),
+              ),
+              if (widget.footerBuilder != null) widget.footerBuilder!(context),
+            ],
+          ),
+        ),
+      ),
+    ));
   }
 }

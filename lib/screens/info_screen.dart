@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 
 import 'chart_screen.dart';
-import 'data_entry.dart';
 import 'home_screen.dart';
+import 'list_view_screen.dart';
 
 //import 'chart_screen.dart';
 //import 'login_screen.dart';
@@ -19,7 +19,7 @@ class InfoScreen extends StatefulWidget {
 }
 
 class _InfoScreenState extends State<InfoScreen> {
-  int _selectedIndex = 0;
+  int _selectedIndex = 3;
 
   /*Future<void> _signOut() async {
     await FirebaseAuth.instance.signOut();
@@ -118,12 +118,18 @@ class _InfoScreenState extends State<InfoScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => DataEntry(user: widget.user),
+                    builder: (context) => ListViewScreen(user: widget.user),
                   ),
                 );
                 break;
               case 3:
                 // navigate to InfoScreen
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => InfoScreen(user: widget.user),
+                  ),
+                );
                 break;
             }
             setState(() {
