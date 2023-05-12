@@ -91,7 +91,7 @@ class _InfoScreenState extends State<InfoScreen> {
             GButton(
               icon: Icons.info,
               text: 'Info',
-              backgroundColor: Colors.red,
+              backgroundColor: Colors.green,
             ),
           ],
           selectedIndex: _selectedIndex,

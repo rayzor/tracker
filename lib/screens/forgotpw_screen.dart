@@ -8,7 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart'
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:firebase_ui_localizations/firebase_ui_localizations.dart';
 import 'package:firebase_ui_shared/firebase_ui_shared.dart';
-import 'package:flutter/material.dart' hide Title;
+import 'package:flutter/material.dart'; // hide Title;
 
 //import '../widgets/internal/title.dart';
 
@@ -77,6 +77,7 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
 
   @override
   Widget build(BuildContext context) {
+    // get UI localisation text from Firebase. Translates to local languages??? .. Nice if so!
     final l = FirebaseUILocalizations.labelsOf(context);
     const spacer = SizedBox(height: 32);
 
@@ -92,59 +93,64 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-
-      // app bar
-      body: Center(
-        // return
-        // Package code from here
-        child: Form(
-          key: formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              //  Title(text: l.forgotPasswordViewTitle),
-              if (!emailSent) ...[
-                spacer,
-                widget.subtitleBuilder?.call(context) ?? Text(l.forgotPasswordHintText),
-              ],
-              spacer,
-              if (!emailSent) ...[
-                EmailInput(
-                  autofocus: false,
-                  controller: emailCtrl,
-                  onSubmitted: _submit,
+      body: Column(
+        children: <Widget>[
+          Expanded(
+            child: Center(
+              // return
+              // Package code from here
+              child: Form(
+                key: formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    //  Title(text: l.forgotPasswordViewTitle),
+                    if (!emailSent) ...[
+                      spacer,
+                      widget.subtitleBuilder?.call(context) ??
+                          Text(l.forgotPasswordHintText),
+                    ],
+                    spacer,
+                    if (!emailSent) ...[
+                      EmailInput(
+                        autofocus: false,
+                        controller: emailCtrl,
+                        onSubmitted: _submit,
+                      ),
+                      spacer,
+                    ] else ...[
+                      Text(l.passwordResetEmailSentText),
+                      spacer,
+                    ],
+                    if (exception != null) ...[
+                      const SizedBox(height: 16),
+                      ErrorText(exception: exception!),
+                      const SizedBox(height: 16),
+                    ],
+                    if (!emailSent)
+                      LoadingButton(
+                        isLoading: isLoading,
+                        label: l.resetPasswordButtonLabel,
+                        onTap: () {
+                          if (formKey.currentState!.validate()) {
+                            _submit(emailCtrl.text);
+                          }
+                        },
+                      ),
+                    const SizedBox(height: 8),
+                    UniversalButton(
+                      variant: ButtonVariant.text,
+                      text: l.goBackButtonLabel,
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                    if (widget.footerBuilder != null) widget.footerBuilder!(context),
+                  ],
                 ),
-                spacer,
-              ] else ...[
-                Text(l.passwordResetEmailSentText),
-                spacer,
-              ],
-              if (exception != null) ...[
-                const SizedBox(height: 16),
-                ErrorText(exception: exception!),
-                const SizedBox(height: 16),
-              ],
-              if (!emailSent)
-                LoadingButton(
-                  isLoading: isLoading,
-                  label: l.resetPasswordButtonLabel,
-                  onTap: () {
-                    if (formKey.currentState!.validate()) {
-                      _submit(emailCtrl.text);
-                    }
-                  },
-                ),
-              const SizedBox(height: 8),
-              UniversalButton(
-                variant: ButtonVariant.text,
-                text: l.goBackButtonLabel,
-                onPressed: () => Navigator.pop(context),
               ),
-              if (widget.footerBuilder != null) widget.footerBuilder!(context),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     ));
   }

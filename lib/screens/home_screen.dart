@@ -36,6 +36,15 @@ class HomeScreenState extends State<HomeScreen> {
   final int yearNumber = DateTime.now().year; // use for aggregating
   late int weekNumber; // use for aggregating
 
+  //CGPT code
+  TextStyle kTitleStyle = TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.bold,
+  );
+  TextStyle kSubtitleStyle = TextStyle(
+    fontSize: 14,
+  );
+
   //== ChatGPT code
   @override
   void initState() {
@@ -97,8 +106,6 @@ class HomeScreenState extends State<HomeScreen> {
               height: 250,
               decoration: const BoxDecoration(
                 borderRadius: BorderRadius.only(
-                  //topLeft: Radius.circular(60),
-                  //topRight: Radius.circular(60),
                   bottomLeft: Radius.circular(20),
                   bottomRight: Radius.circular(30),
                 ),
@@ -107,58 +114,70 @@ class HomeScreenState extends State<HomeScreen> {
                   fit: BoxFit.fill,
                 ),
               ),
-              //child: _widgetOptions.elementAt(_selectedIndex),
-              //child: Text('Welcome ${widget.user.email.toString()}!'),
             ),
             const SizedBox(height: 20),
-            Text('Hi $currentUserEmail'),
-            const Text("Help to reduce the use of Single Use Plastics."),
-            const Text(
-                "Enter the number of plastic items put in your waste bin this week."),
-            const SizedBox(height: 50),
-            const Text("ToDo -- Recode for a Spinner for Data Entry"),
-            const SizedBox(height: 50),
-            // New: Use Home Screen for Data Input here
-            /*   TextField(
-              controller: quantity,
-              decoration:
-                  const InputDecoration(hintText: "Single use plastic items this week"),
-              inputFormatters: [
-                // ChatGPT code to restrict data entry to numbers only
-                IntegerInputFormatter()
-              ],
-            ),*/
 
-            // CGPT code
-            Container(
-              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.5),
-                    spreadRadius: 2,
-                    blurRadius: 5,
-                    offset: Offset(0, 3),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+              child: Column(
+                children: [
+                  Text(
+                    'Hi $currentUserEmail',
+                    style: kTitleStyle,
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    // 3 quote marks allows multi line text!
+                    """Help to reduce the use of Single Use Plastics. Avoid the high cost of recycling in energy, transport and labour costs.""",
+                    style: kSubtitleStyle,
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    "Enter the number of Single Use Plastic items put in your waste bin this week.",
+                    style: kSubtitleStyle,
                   ),
                 ],
-                borderRadius: BorderRadius.circular(10),
               ),
-              child: TextField(
-                controller: quantity,
-                decoration: InputDecoration(
-                  hintText: "Enter quantity of items this week",
-                  border: InputBorder.none,
-                ),
-                inputFormatters: [
-                  // ChatGPT code to restrict data entry to numbers only
-                  IntegerInputFormatter(),
+            ),
+
+            const SizedBox(height: 10),
+            //  const Text("ToDo -- Recode for a Spinner for Data Entry"),
+            const SizedBox(height: 10),
+            // New: Use Home Screen for Data Input below
+            //
+            // CGPT assisted code
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+              child: Column(
+                children: [
+                  //  const Text( "Enter quantity of items this week",
+                  //    textAlign: TextAlign.center,
+                  //   ),
+                  TextField(
+                    controller: quantity,
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.grey[200],
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide.none,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      contentPadding:
+                          const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                      hintText: "Enter quantity",
+                    ),
+                    inputFormatters: [
+                      // ChatGPT code to restrict data entry to numbers only
+                      IntegerInputFormatter(),
+                    ],
+                  ),
                 ],
               ),
             ),
           ],
         ),
       ),
+
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(8.0),
         child: GNav(
@@ -238,7 +257,7 @@ class HomeScreenState extends State<HomeScreen> {
         onPressed: () {
           entries.add({
             // ToDo use seconds since EPOCH or maybe week number & year
-            //'logDate': DateTime.now(),
+            //'logDate': DateTime.now(), // fail needs TimeStamp type for Firebase
             'logDate': Timestamp.fromDate(DateTime.now()),
             // added year number and week number to database
             'yearNumber': yearNumber,

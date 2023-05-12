@@ -62,9 +62,12 @@ class ListViewScreenState extends State<ListViewScreen> {
             //ToDo Expanded widget needed to only expand to available space & avoid ZEBRA yellow crossing
             Expanded(
               child: StreamBuilder(
+                // get location records from Firebase. use where function to filter the Stream of data by locationID
                 stream: entries
                     .orderBy('logDate')
-                    .where('locationID', isEqualTo: widget.user.displayName.toString())
+                    .where('locationID',
+                        isEqualTo: widget.user.displayName
+                            .toString()) // location is in displayName
                     .snapshots(),
                 builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                   if (!snapshot.hasData) {
@@ -76,23 +79,44 @@ class ListViewScreenState extends State<ListViewScreen> {
                   return ListView(
                     children: snapshot.data!.docs.map((entry) {
                       return Center(
-                        child: ListTile(
-                          leading: Text(entry['locationID']),
-                          trailing: Text('Quantity   ' +
-                              '${entry['quantity'].toString()}'), // toString for listview.
-                          // works leading: Text(DateFormat.yMMMEd().format(entry['logDate'].toDate())),
-                          // works leading: Text(DateFormat.yMd().format(entry['logDate'].toDate())),
+                        // add Card for better presentation and separation of lin eitems.
+                        child: Card(
+                          // color: Colors.white70,
+                          shadowColor: Colors.yellow,
+                          // surfaceTintColor: ,
+                          elevation: 4,
+                          margin: EdgeInsets.all(8),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)),
+                          child: ListTile(
+                            // tileColor: ,
+                            //  splashColor: Colors.cyan,
+                            textColor: Colors.black,
+                            leading: Text(entry['locationID']),
+                            trailing: Text('Wk ${entry['weekNumber'].toString()}    Qty  ' +
+                                '${entry['quantity'].toString()}'), // toString for listview.
+                            // works leading: Text(DateFormat.yMMMEd().format(entry['logDate'].toDate())),
+                            // works leading: Text(DateFormat.yMd().format(entry['logDate'].toDate())),
 
-                          title: Text(
-                            '${myDateFormat.format(entry['logDate'].toDate())} '
-                            '          Wk   '
-                            ' ${entry['weekNumber'].toString()}',
+                            title: Text(
+                                '${myDateFormat.format(entry['logDate'].toDate())} ',
+                                style: TextStyle(fontSize: 10)),
+                            //subtitle: Text( 'Wk ' '${entry['weekNumber'].toString()}',
+                            //),
+                            // subtitle:
+                            // dense: //make the ListTile denser smaller
+                            //enabled: //style default
+                            // selected: true
+                            dense: true,
+                            enabled: false,
+                            selected: true,
+                            selectedColor: Colors.blue,
+
+                            onLongPress: () {
+                              entry.reference
+                                  .delete(); // ToDo handy for Development but remove in final app
+                            },
                           ),
-
-                          onLongPress: () {
-                            entry.reference
-                                .delete(); // ToDo handy for Development but remove in final app
-                          },
                         ),
                       );
                     }).toList(), // convert the Map to a List for use in ListView
