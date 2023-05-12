@@ -1,7 +1,7 @@
-// tracker : List View : Show user list And Location list for this user.
+// tracker : List View Screen: Show user list And Location list for this user.
 
-// Note: ? means it is OK to be null but caution as it could crash your code
-// Note: ! is the "assert symbol" saying I guarantee not null
+// Note: ? means it is OK to be null but caution as it could crash your Dart code
+// Note: ! is the "assert symbol" saying I guarantee not null in your Dart code
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -27,7 +27,8 @@ class ListViewScreenState extends State<ListViewScreen> {
   final DateTime today = DateTime.now();
   final dateFormatted = DateFormat.yMd().format(DateTime.now());
 // Todo ... decide final Date format style EU or US od location based.
-  final myDateFormat = DateFormat('dd-MM-yyyy'); // Irish / British date format
+  final myDateFormat = DateFormat(
+      'dd-MM-yyyy'); // Irish / British date format : Todo make variable by region
 
   //== Chat
   @override
@@ -77,16 +78,20 @@ class ListViewScreenState extends State<ListViewScreen> {
                       return Center(
                         child: ListTile(
                           leading: Text(entry['locationID']),
-                          trailing: Text(
-                              entry['quantity'].toString()), // toString for listview.
+                          trailing: Text('Quantity   ' +
+                              '${entry['quantity'].toString()}'), // toString for listview.
                           // works leading: Text(DateFormat.yMMMEd().format(entry['logDate'].toDate())),
                           // works leading: Text(DateFormat.yMd().format(entry['logDate'].toDate())),
 
-                          title: Text(myDateFormat.format(entry['logDate'].toDate())),
+                          title: Text(
+                            '${myDateFormat.format(entry['logDate'].toDate())} '
+                            '          Wk   '
+                            ' ${entry['weekNumber'].toString()}',
+                          ),
 
                           onLongPress: () {
                             entry.reference
-                                .delete(); // ToDo handy but remove in final app
+                                .delete(); // ToDo handy for Development but remove in final app
                           },
                         ),
                       );

@@ -24,7 +24,7 @@ class SignUpScreen extends StatefulWidget {
 class _SignUpScreenState extends State<SignUpScreen> {
   final _registerFormKey = GlobalKey<FormState>();
 
-  //final _locationTextController = TextEditingController();
+  //final _locationTextController = TextEditingController(); // no longer reqd. Now in Firebase User / displayName
   final _emailTextController = TextEditingController();
   final _passwordTextController = TextEditingController();
 
@@ -34,7 +34,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   bool _isProcessing = false;
 
-  //ChatGPT code for DropDown in the Form widget.
+  //ChatGPT code assisted for DropDown in the Form widget.
+  // ToDo get Locations from firebase .. did not work yet!
+  // using fixed List below as interim solution
   List<String> locations = [
     'Glanmire',
     'Watergrasshill',
@@ -236,12 +238,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
                                         User? user = await FirebaseAuthHelper
                                             .registerUsingEmailPassword(
-                                          //   name: _nameTextController.text,
-                                          // use the name required by yhe built in validation in Firebase
-                                          // Error :Cant use name field in User collection to save location names.
                                           // Make a new collection called locations.
                                           /// to record the user location on Signup
-                                          ///
                                           /// displayName: The display name for the user, which can be set using the name
                                           /// we can use this to save the locationName for use in subsequent Logins
                                           name: _selectedLocation

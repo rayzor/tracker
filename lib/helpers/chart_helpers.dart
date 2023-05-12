@@ -1,5 +1,6 @@
 // tracker: line_chart. Builds the 2 line chart of location trend and user trend
-// ChatGPT code assist
+// userID and locationID passed to here to filter the Firebase to return just that data
+// ChatGPT code assisted
 import 'package:charts_flutter_new/flutter.dart' as charts; // use tag charts
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -33,13 +34,6 @@ class DataPoint {
 // chart : this is the chart code for charts_flutter package.
 class TimeSeriesLineChart extends StatefulWidget {
   User user;
-
-  //final Key chartKey; // to provide a key called from dataentry to redraw chart every time data is entered.
-  //final chartKey = GlobalKey<_TimeSeriesLineChartState>(); // ChatGPT suggested code
-  //final String currentUserEmail; // passed from the Navigator in main/login
-
-  // final User user; // full user fields forwarded from login
-  // TimeSeriesLineChart({required this.user});
 
   TimeSeriesLineChart({Key? key, required this.user}) : super(key: key);
 

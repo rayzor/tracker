@@ -1,4 +1,4 @@
-// validation helpers.
+// tracker app: validation helpers.
 // this file contains helper methods which are called from the login and signin screens
 // it is convenient to separate these methods into separate files to reduce the clutter in the main screens
 // these helper methods are used to validate email, password and number entered in the quantity field.
@@ -30,7 +30,7 @@ class Validator {
     // 8 Chrs, Capital, Symbol, lower.
     //String pattern = r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$';
 
-    //A regex pattern for a password with just 8 characters consisting of letters or numbers:
+    //A simple regex pattern for a password with just 8 characters consisting of letters or numbers:
     String pattern = r'^[a-zA-Z0-9]{8}$';
 
     RegExp regex = RegExp(pattern);
@@ -48,7 +48,7 @@ class Validator {
 } // END class VALIDATOR
 
 // Data Entry formatter helper method : allows numbers only input in Quantity field
-// Chat GPT suggestion - good code. prevents text entry OR edit - numbers only allowed.
+// Chat GPT code assisted  - good code. prevents text entry OR edit - numbers only allowed.
 class IntegerInputFormatter extends TextInputFormatter {
   // ToDo Data Entry limit of 50 items of SUPs ToDo extract to Parameter file
   num get quantityLimit => 50;

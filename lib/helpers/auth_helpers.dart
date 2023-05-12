@@ -1,7 +1,7 @@
 // authentication helpers.
 // this file contains methods which are called from the main screens for Authentication
 // it is convenient to separate these methods into separate helper files to reduce the clutter in the main screens
-
+// ChatGPT assisted:
 import 'package:firebase_auth/firebase_auth.dart';
 
 class FirebaseAuthHelper {

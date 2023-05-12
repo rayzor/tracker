@@ -6,7 +6,7 @@
 // In Firebase enter the Community names which can participate in the 'locations' collection in a document (field) called locationName.
 // In Firebase enter the weekly quantities in collection "entries" with the following document(fields)
 // locationID (String), logDate(TimeDate), quantity(number) userID(String), weekNumber(number), yearNumber(number)
-// RN/DM
+// RN/DM/ Nathan, Alan, Fionn, James, Mick, Adrian,
 
 // main.dart
 //
@@ -16,6 +16,9 @@ import 'package:flutter/material.dart';
 import 'package:tracker/screens/home_screen.dart';
 
 import 'screens/login_screen.dart';
+
+// Note: ? means it is OK to be null but caution as it could crash your Dart code
+// Note: ! is the "assert symbol" saying I guarantee not null in your Dart code
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,13 +33,10 @@ class MyApp extends StatelessWidget {
   //routes
   final routes = <String, WidgetBuilder>{
     '/home': (BuildContext context) {
-      final user = FirebaseAuth
-          .instance.currentUser!; // ! indicates we are certain user is not null???
+      final user = FirebaseAuth.instance
+          .currentUser!; // ! indicates we are certain user is not null??? Todo TEST
       return HomeScreen(user: user);
     },
-    // '/chart': (BuildContext context) => ChartScreen( user: null,  ),
-    //  '/data_entry': (BuildContext context) => DataEntryScreen(),
-    // '/info': (BuildContext context) => InfoScreen(),
     '/login': (BuildContext context) => LoginScreen(),
   };
   @override

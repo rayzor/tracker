@@ -1,8 +1,9 @@
 // login screen: Tracker App
 // Firebase_authentication on github
 // login with email & password
-// get location from user collection called displayName.
+// get location from the User collection in Firebase called displayName.
 // Put locationName in displayName in user collection on SignUP
+//ChatGPT code assisted:
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -243,7 +244,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       ),
 
                                       //Mod1
-                                      // put wid array end here and Col end for the 2 fileds
+                                      // put widget array end here and Col end for the 2 fieleds
                                     ])),
                                 // between Password and Login Button
                                 SizedBox(height: 24.0),

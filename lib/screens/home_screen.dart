@@ -1,5 +1,9 @@
-// tracker : Home Screen : after Login: navigate to all functions from Home Screen
+// tracker : Home Screen
+// Navigate to Home Screen after Login:
+// Navigate to all functions from Home Screen
+// Used GNav plugin library package to do the Navigation Tabs
 
+// ChatGPT code assisted.
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -37,11 +41,10 @@ class HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     // _currentUser = widget.user;
-    // _currentUser = widget.user;
     //currentUserEmail = widget.user.email;
     weekNumber = _getWeekNumber(
         today); // for easy calc the week number for aggregating quantities by week
-    //todo Fix. this is not a string for Mallow it is an object.. must do convert to list and extract see. chart code
+    //todo Fix. this is not a string for Glanmire it is an object.. must do convert to list and extract see. chart code
     //   getLocation(widget.user.email.toString());
     //.currentUserEmail); // get the location for this emailUser, Glanmire or Watergrasshill etc
   }
@@ -99,10 +102,6 @@ class HomeScreenState extends State<HomeScreen> {
                   bottomLeft: Radius.circular(20),
                   bottomRight: Radius.circular(30),
                 ),
-                //image: DecorationImage(
-                // image: NetworkImage(
-                //   'https://cdn.pixabay.com/photo/2015/03/30/12/37/jellyfish-698521__340.jpg'),
-                //fit: BoxFit.fill)
                 image: DecorationImage(
                   image: AssetImage('assets/images/boy_sea.jpg'),
                   fit: BoxFit.fill,
@@ -148,7 +147,7 @@ class HomeScreenState extends State<HomeScreen> {
               child: TextField(
                 controller: quantity,
                 decoration: InputDecoration(
-                  hintText: "Single use plastic items this week",
+                  hintText: "Enter quantity of items this week",
                   border: InputBorder.none,
                 ),
                 inputFormatters: [
@@ -253,14 +252,14 @@ class HomeScreenState extends State<HomeScreen> {
 
           // to redraw chart after data entry
           // Call this method whenever data is entered to update the chart
-          // fail  _chartKey.currentState?.updateData();
+          // fail  _chartKey.currentState?.updateData(); // OUCH!
 
           quantity.clear();
           setState(() {
             // TimeSeriesLineChart._getDataPoints();
           });
           // ChatGPT code Call the updateData() method to redraw the chart
-          // _chartKey.currentState?.updateData();  // fail
+          // _chartKey.currentState?.updateData();  // fail OUCH!
         },
       ),
 
@@ -270,7 +269,7 @@ class HomeScreenState extends State<HomeScreen> {
 }
 
 //
-// Chat GPT suggestion - good code. prevents text entry OR edit - numbers only allowed.
+// Chat GPT code suggestion - good code. prevents text entry OR edit - numbers only allowed.
 class IntegerInputFormatter extends TextInputFormatter {
   num get quantityLimit =>
       50; // Data Entry limit of 50 items of SUPs : put in Params file in firestore

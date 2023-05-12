@@ -1,4 +1,6 @@
-// tracker : Info Screen
+// tracker : coder Dojo Club App to track Single Use Plastics
+// Info Screen
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';

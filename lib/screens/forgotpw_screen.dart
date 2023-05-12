@@ -80,7 +80,7 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
     final l = FirebaseUILocalizations.labelsOf(context);
     const spacer = SizedBox(height: 32);
 
-    //= app bar
+    //= app bar : added AppBar but failed to show on screen : Ouch! ToDo : FIX this.
     return MaterialApp(
         home: Scaffold(
       appBar: AppBar(
@@ -96,6 +96,7 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
       // app bar
       body: Center(
         // return
+        // Package code from here
         child: Form(
           key: formKey,
           child: Column(
