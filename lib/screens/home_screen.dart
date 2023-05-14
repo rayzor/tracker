@@ -128,12 +128,14 @@ class HomeScreenState extends State<HomeScreen> {
                   const SizedBox(height: 20),
                   Text(
                     // 3 quote marks allows multi line text!
-                    """Help to reduce the use of Single Use Plastics. Avoid the high cost of recycling in energy, transport and labour costs.""",
+                    // """Help to reduce the use of Single Use Plastics. Avoid the high cost of recycling in energy, transport and labour costs.""",
+                    '''Make a positive impact on the environment and help protect our planet for generations to come. Join the movement to reduce single-use plastics today! ''',
+
                     style: kSubtitleStyle,
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    "Enter the number of Single Use Plastic items put in your waste bin this week.",
+                    "Enter the number of Single Use Plastic items put in your bin this week.",
                     style: kSubtitleStyle,
                   ),
                 ],
@@ -155,6 +157,8 @@ class HomeScreenState extends State<HomeScreen> {
                   //   ),
                   TextField(
                     controller: quantity,
+                    keyboardType: TextInputType
+                        .number, // mod to restrice the keyboard to numbers only
                     decoration: InputDecoration(
                       filled: true,
                       fillColor: Colors.grey[200],
@@ -214,6 +218,12 @@ class HomeScreenState extends State<HomeScreen> {
             switch (index) {
               case 0:
                 // navigate to HomeScreen
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => HomeScreen(user: widget.user),
+                  ),
+                );
                 break;
               case 1:
                 // navigate to data entry in ChartScreen : put Data Entry function in Home Screen

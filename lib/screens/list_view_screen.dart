@@ -10,6 +10,7 @@ import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:intl/intl.dart';
 
 import 'chart_screen.dart';
+import 'home_screen.dart';
 import 'info_screen.dart'; // for DateFormats
 
 class ListViewScreen extends StatefulWidget {
@@ -64,7 +65,9 @@ class ListViewScreenState extends State<ListViewScreen> {
               child: StreamBuilder(
                 // get location records from Firebase. use where function to filter the Stream of data by locationID
                 stream: entries
-                    .orderBy('logDate')
+                    .orderBy('logDate',
+                        descending:
+                            true) // added decending true to show latest entries at top.
                     .where('locationID',
                         isEqualTo: widget.user.displayName
                             .toString()) // location is in displayName
@@ -79,28 +82,44 @@ class ListViewScreenState extends State<ListViewScreen> {
                   return ListView(
                     children: snapshot.data!.docs.map((entry) {
                       return Center(
-                        // add Card for better presentation and separation of lin eitems.
+                        // add Card for better presentation and separation of lineitems.
                         child: Card(
                           // color: Colors.white70,
-                          shadowColor: Colors.yellow,
+                          // shadowColor: Colors.yellow,
                           // surfaceTintColor: ,
                           elevation: 4,
                           margin: EdgeInsets.all(8),
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)),
+                              borderRadius: BorderRadius.circular(8),
+                              side: BorderSide(
+                                color: Colors.white,
+                                width: 2,
+                              )),
                           child: ListTile(
                             // tileColor: ,
                             //  splashColor: Colors.cyan,
                             textColor: Colors.black,
-                            leading: Text(entry['locationID']),
-                            trailing: Text('Wk ${entry['weekNumber'].toString()}    Qty  ' +
-                                '${entry['quantity'].toString()}'), // toString for listview.
+                            leading: Text(
+                              entry['locationID'],
+                              style: TextStyle(
+                                  // fontWeight: FontWeight.bold,
+                                  fontSize: 14.0,
+                                  color: Colors.blue),
+                            ),
+                            trailing: Text(
+                              'Wk ${entry['weekNumber'].toString()}    Qty ' +
+                                  '${entry['quantity'].toString()}',
+                              style: TextStyle(
+                                  // fontWeight: FontWeight.bold,
+                                  fontSize: 16.0,
+                                  color: Colors.black54),
+                            ), // toString for listview.
                             // works leading: Text(DateFormat.yMMMEd().format(entry['logDate'].toDate())),
                             // works leading: Text(DateFormat.yMd().format(entry['logDate'].toDate())),
 
                             title: Text(
                                 '${myDateFormat.format(entry['logDate'].toDate())} ',
-                                style: TextStyle(fontSize: 10)),
+                                style: TextStyle(color: Colors.black54, fontSize: 14)),
                             //subtitle: Text( 'Wk ' '${entry['weekNumber'].toString()}',
                             //),
                             // subtitle:
@@ -163,6 +182,12 @@ class ListViewScreenState extends State<ListViewScreen> {
               switch (index) {
                 case 0:
                   // navigate to HomeScreen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => HomeScreen(user: widget.user),
+                    ),
+                  );
                   break;
                 case 1:
                   // navigate to data entry in ChartScreen : put Data Entry function in Home Screen

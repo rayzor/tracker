@@ -52,7 +52,7 @@ class _InfoScreenState extends State<InfoScreen> {
                 bottomRight: Radius.circular(30),
               ),
               image: DecorationImage(
-                image: AssetImage('assets/images/plastic_bottles.jpg'),
+                image: AssetImage('assets/images/bottles2.jpg'),
                 fit: BoxFit.fill,
               ),
             ),
@@ -60,7 +60,18 @@ class _InfoScreenState extends State<InfoScreen> {
             //child: Text('Welcome ${widget.user.email.toString()}!'),
           ),
           const SizedBox(height: 20),
-          const Text('Info Screen: ---- Fill '),
+          // Asked ChatGPT for appropriate text for an APP on reduction of SUP ...
+          const Text(
+              '''Are you concerned about the impact of single-use plastics on our planet? You're not alone! Millions of people around the world are taking action to reduce their use of these harmful products.
+
+          Here are a few simple steps you can take to help make a difference:
+
+          Bring your own reusable bags when you go shopping
+              Say "no" to plastic straws and cutlery
+              Use refillable water bottles instead of disposable plastic bottles
+              Choose products with minimal or no packaging whenever possible
+              Recycle and dispose of plastics properly
+              Together, we can make a positive impact on the environment and help protect our planet for generations to come. Join the movement to reduce single-use plastics today!'''),
         ]),
       ),
       bottomNavigationBar: Padding(
