@@ -17,7 +17,9 @@ Based on Tommy's videos at https://learnflutterwithme.com/
 - It also provides insight into individual user trends by charting the User plastic usage. 
 - The community locations are entered by the Club in Firestore database as Text.
 
-ChatGPT assisted code was used in the coding of the App - amazing!.
+ChatGPT AI assisted code was used in the coding of the App - amazing!
+
+DALL-E AI created some of the graphics for this App - amazing!
 
 ===== Getting Started with Flutter by Google: Language is Dart.
 
